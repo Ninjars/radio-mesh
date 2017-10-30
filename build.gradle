@@ -1,6 +1,4 @@
 buildscript {
-    
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -9,13 +7,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
-        
-
+        classpath 'io.realm:realm-gradle-plugin:3.5.0'
+        classpath 'me.tatarka:gradle-retrolambda:3.6.1'
     }
 }
 
 allprojects {
-    apply plugin: "eclipse"
     apply plugin: "idea"
 
     version = '1.0'
@@ -29,8 +26,10 @@ allprojects {
     }
 
     repositories {
+        jcenter()
         mavenLocal()
         mavenCentral()
+        maven { url 'https://maven.google.com' }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
     }
@@ -61,7 +60,6 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
-        
     }
 }
 
@@ -77,6 +75,6 @@ project(":core") {
     }
 }
 
-tasks.eclipse.doLast {
-    delete ".project"
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

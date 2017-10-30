@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">radio-mesh</string>
-
+    <string name="background_scan">Autoscan</string>
+    <string name="id_readout">ID: %s</string>
+    <string name="count_readout">Nodes: %s</string>
 </resources>

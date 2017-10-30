@@ -1,0 +1,182 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "79a117e8d26b6947731ac46018effae0",
+    "entities": [
+      {
+        "tableName": "graphs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_graphs_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_graphs_id` ON `${TABLE_NAME}` (`id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "radiopoints",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `bssid` TEXT, `ssid` TEXT, `graph_id` INTEGER NOT NULL, FOREIGN KEY(`graph_id`) REFERENCES `graphs`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bssid",
+            "columnName": "bssid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ssid",
+            "columnName": "ssid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "graphId",
+            "columnName": "graph_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_radiopoints_bssid",
+            "unique": true,
+            "columnNames": [
+              "bssid"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_radiopoints_bssid` ON `${TABLE_NAME}` (`bssid`)"
+          },
+          {
+            "name": "index_radiopoints_graph_id",
+            "unique": false,
+            "columnNames": [
+              "graph_id"
+            ],
+            "createSql": "CREATE  INDEX `index_radiopoints_graph_id` ON `${TABLE_NAME}` (`graph_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "graphs",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "graph_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "connections",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fromNodeId` INTEGER NOT NULL, `toNodeId` INTEGER NOT NULL, FOREIGN KEY(`fromNodeId`) REFERENCES `radiopoints`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`toNodeId`) REFERENCES `radiopoints`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromNodeId",
+            "columnName": "fromNodeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toNodeId",
+            "columnName": "toNodeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_connections_fromNodeId_toNodeId",
+            "unique": true,
+            "columnNames": [
+              "fromNodeId",
+              "toNodeId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_connections_fromNodeId_toNodeId` ON `${TABLE_NAME}` (`fromNodeId`, `toNodeId`)"
+          },
+          {
+            "name": "index_connections_toNodeId",
+            "unique": false,
+            "columnNames": [
+              "toNodeId"
+            ],
+            "createSql": "CREATE  INDEX `index_connections_toNodeId` ON `${TABLE_NAME}` (`toNodeId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "radiopoints",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "fromNodeId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "radiopoints",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "toNodeId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"79a117e8d26b6947731ac46018effae0\")"
+    ]
+  }
+}
