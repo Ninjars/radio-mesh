@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh;
+package com.ninjarific.radiomesh.visualisation;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,12 +6,14 @@ import android.widget.Toast;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.ninjarific.radiomesh.IMessageHandler;
+import com.ninjarific.radiomesh.MainApplication;
+import com.ninjarific.radiomesh.RadioMeshGame;
 import com.ninjarific.radiomesh.database.room.DatabaseHelper;
 import com.ninjarific.radiomesh.database.room.entities.Connection;
 import com.ninjarific.radiomesh.database.room.entities.Node;
 import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
 import com.ninjarific.radiomesh.utils.listutils.ListUtils;
-import com.ninjarific.radiomesh.visualisation.DebugDataProvider;
 
 import java.util.ArrayList;
 import java.util.List;

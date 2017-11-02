@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ninjarific.radiomesh.GraphicsActivity"
+            android:name="com.ninjarific.radiomesh.visualisation.GraphicsActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
