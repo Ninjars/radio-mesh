@@ -6,12 +6,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
+
+import java.util.List;
 
 public class RadioMeshGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	
-	@Override
+	private static final String TAG = RadioMeshGame.class.getSimpleName();
+	private SpriteBatch batch;
+	private Texture img;
+	private List<ForceConnectedNode> data;
+
+    @Override
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		batch = new SpriteBatch();
@@ -31,5 +36,10 @@ public class RadioMeshGame extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		img.dispose();
+	}
+
+	public void setData(List<ForceConnectedNode> data) {
+		Gdx.app.log(TAG, "setData " + data);
+		this.data = data;
 	}
 }

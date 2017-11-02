@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh;
+package com.ninjarific.radiomesh.visualisation;
 
 import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
 

@@ -15,7 +15,7 @@ import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.ninjarific.radiomesh.DebugDataProvider;
+import com.ninjarific.radiomesh.visualisation.DebugDataProvider;
 import com.ninjarific.radiomesh.GraphicsActivity;
 import com.ninjarific.radiomesh.MainApplication;
 import com.ninjarific.radiomesh.R;

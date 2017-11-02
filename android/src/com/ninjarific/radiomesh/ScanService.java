@@ -11,7 +11,7 @@ public class ScanService extends JobService {
     public boolean onStartJob(JobParameters jobParameters) {
         Timber.d("onStartJob");
         Context context = getApplicationContext();
-        WifiScanner wifiScanner = GraphicsActivity.getWifiScanner();
+        WifiScanner wifiScanner = MainApplication.getWifiScanner();
         wifiScanner.register(context);
         wifiScanner.triggerScan(() -> {
             Timber.d("job finished callback");
@@ -24,7 +24,7 @@ public class ScanService extends JobService {
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
         Timber.d("onStopJob");
-        GraphicsActivity.getWifiScanner().unregister(getApplicationContext());
+        MainApplication.getWifiScanner().unregister(getApplicationContext());
         return true;
     }
 }
