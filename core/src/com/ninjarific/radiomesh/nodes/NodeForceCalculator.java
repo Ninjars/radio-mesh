@@ -12,13 +12,13 @@ public class NodeForceCalculator {
     private final double maxForce;
     private final double forceMagnitude;
 
-    NodeForceCalculator(double forceFactor, double optimalDistance) {
+    public NodeForceCalculator(double forceFactor, double optimalDistance) {
         this.optimalDistance = optimalDistance;
         forceMagnitude = forceFactor * optimalDistance * optimalDistance;
         maxForce = 10;
     }
 
-    void repelNode(ForceConnectedNode node, QuadTree<ForceConnectedNode> quadTree) {
+    public void repelNode(ForceConnectedNode node, QuadTree<ForceConnectedNode> quadTree) {
 //        applySimpleRecursiveNBodyForces(node, quadTree);
         applyTreeForce(node, quadTree);
     }
@@ -56,7 +56,7 @@ public class NodeForceCalculator {
 
         node.addForce(fx, fy);
 //        Timber.i("applyRepulsionForce " + node.getIndex() + " force: " + force + " multiplied by: " + multiplier + "   dx,dy: " + dx + ", " + dy + "   vx,vy: " + vx + ", " + vy + "   fx,fy: " + fx + ", " + fy);
-        Gdx.app.debug(LOGTAG, "repel," + node.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy);
+        Gdx.app.debug(LOGTAG, "repel," + node.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + "," + node.getX() + "," + node.getY());
     }
 
     private void applyTreeForce(ForceConnectedNode node, QuadTree<ForceConnectedNode> tree) {
@@ -107,7 +107,7 @@ public class NodeForceCalculator {
         return quadTree.getBounds().getWidth() / distance <= TREE_INEQUALITY;
     }
 
-    void attractNodes(ForceConnectedNode nodeA, ForceConnectedNode nodeB) {
+    public void attractNodes(ForceConnectedNode nodeA, ForceConnectedNode nodeB) {
         double dx = nodeB.getX() - nodeA.getX();
         double dy = nodeB.getY() - nodeA.getY();
 
@@ -126,7 +126,7 @@ public class NodeForceCalculator {
         nodeA.addForce(fx, fy);
         nodeB.addForce(-fx, -fy);
 //        Timber.i("attractNodes " + nodeA.getIndex() + " " + nodeB.getIndex() + " magnitude: " + force + "   dx,dy: " + dx + ", " + dy + "   vx,vy: " + vx + ", " + vy + "   fx,fy: " + fx + ", " + fy);
-        Gdx.app.debug(LOGTAG, "attract," + nodeA.getIndex() + "," + force + "," + dx + "," + dy + "," + fx + "," + fy);
-        Gdx.app.debug(LOGTAG, "attract," + nodeB.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy);
+//        Gdx.app.debug(LOGTAG, "attract," + nodeA.getIndex() + "," + force + "," + dx + "," + dy + "," + fx + "," + fy);
+        Gdx.app.debug(LOGTAG, "attract," + nodeB.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + ",nodeA," + nodeA.getX() + "," + nodeA.getY() + ",nodeB," + nodeB.getX() + "," + nodeB.getY());
     }
 }

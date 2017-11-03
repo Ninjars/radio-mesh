@@ -2,8 +2,8 @@ package com.ninjarific.radiomesh.nodes;
 
 public class ForceConnection {
 
-    final int from;
-    final int to;
+    public final int from;
+    public final int to;
     private final int hashCode;
 
     public ForceConnection(int from, int to) {

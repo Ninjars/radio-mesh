@@ -18,9 +18,9 @@ public class NodeActor extends Actor {
     }
 
     private Texture createTexture() {
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(10, 10, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);
-        pixmap.fillCircle(0, 0, 1);
+        pixmap.fillCircle(5, 5, 3);
         return new Texture(pixmap);
     }
 
