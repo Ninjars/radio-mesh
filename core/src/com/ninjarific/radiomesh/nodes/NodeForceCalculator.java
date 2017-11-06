@@ -1,6 +1,5 @@
 package com.ninjarific.radiomesh.nodes;
 
-import com.badlogic.gdx.Gdx;
 import com.ninjarific.radiomesh.forcedirectedgraph.QuadTree;
 
 public class NodeForceCalculator {
@@ -29,7 +28,7 @@ public class NodeForceCalculator {
             if (other != node) {
                 double dx = other.getX() - node.getX();
                 double dy = other.getY() - node.getY();
-                applyRepulsionForce(node, dx, dy, 1);
+                applyRepulsionForce(node, dx, dy);
             }
         }
 
@@ -38,42 +37,40 @@ public class NodeForceCalculator {
         }
     }
 
-    private void applyRepulsionForce(ForceConnectedNode node, double dx, double dy, double multiplier) {
+    private void applyRepulsionForce(ForceConnectedNode node, double dx, double dy) {
         double mag = Math.sqrt(dx * dx + dy * dy);
         if (mag < MIN_FORCE_THRESHOLD) {
             return;
         }
-        applyRepulsionForce(node, dx, dy, multiplier, mag);
+        applyRepulsionForce(node, dx, dy, 1, mag);
     }
 
     private void applyRepulsionForce(ForceConnectedNode node, double dx, double dy, double multiplier, double magnitude) {
         double vx = dx / magnitude;
         double vy = dy / magnitude;
 
-        double force = -Math.min(maxForce, Math.min(0, multiplier * forceMagnitude / magnitude));
+        double force = -Math.min(maxForce, Math.max(0, multiplier * forceMagnitude / magnitude));
         double fx = vx * force;
         double fy = vy * force;
 
         node.addForce(fx, fy);
 //        Timber.i("applyRepulsionForce " + node.getIndex() + " force: " + force + " multiplied by: " + multiplier + "   dx,dy: " + dx + ", " + dy + "   vx,vy: " + vx + ", " + vy + "   fx,fy: " + fx + ", " + fy);
-        Gdx.app.debug(LOGTAG, "repel," + node.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + "," + node.getX() + "," + node.getY());
+//        Gdx.app.debug(LOGTAG, "repel," + node.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + "," + node.getX() + "," + node.getY());
     }
 
     private void applyTreeForce(ForceConnectedNode node, QuadTree<ForceConnectedNode> tree) {
         if (tree.isEmpty()) return;
         if (tree.isLeaf()) {
-//            Timber.i("applyTreeForce - leaf tree " + node + " " + tree.hashCode() + " other nodes " + tree.getTotalContainedItemCount());
             for (ForceConnectedNode other : tree.getContainedItems()) {
                 if (other != node) {
                     double dx = other.getX() - node.getX();
                     double dy = other.getY() - node.getY();
-                    applyRepulsionForce(node, dx, dy, 1);
+                    applyRepulsionForce(node, dx, dy);
                 }
             }
         } else {
             double distance = quadTreeDistance(node, tree);
             if (leafIsFar(distance, tree)) {
-//                Timber.i("applyTreeForce - distant tree " + node + " " + tree);
                 applyRepulsionForce(node, getDx(node, tree), getDy(node, tree), tree.getTotalContainedItemCount(), distance);
             } else {
                 for (QuadTree<ForceConnectedNode> subtree : tree.getSubTrees()) {
@@ -125,8 +122,7 @@ public class NodeForceCalculator {
 
         nodeA.addForce(fx, fy);
         nodeB.addForce(-fx, -fy);
-//        Timber.i("attractNodes " + nodeA.getIndex() + " " + nodeB.getIndex() + " magnitude: " + force + "   dx,dy: " + dx + ", " + dy + "   vx,vy: " + vx + ", " + vy + "   fx,fy: " + fx + ", " + fy);
 //        Gdx.app.debug(LOGTAG, "attract," + nodeA.getIndex() + "," + force + "," + dx + "," + dy + "," + fx + "," + fy);
-        Gdx.app.debug(LOGTAG, "attract," + nodeB.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + ",nodeA," + nodeA.getX() + "," + nodeA.getY() + ",nodeB," + nodeB.getX() + "," + nodeB.getY());
+//        Gdx.app.debug(LOGTAG, "attract," + nodeB.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + ",nodeA," + nodeA.getX() + "," + nodeA.getY() + ",nodeB," + nodeB.getX() + "," + nodeB.getY());
     }
 }
