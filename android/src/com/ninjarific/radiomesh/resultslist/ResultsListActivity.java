@@ -84,6 +84,8 @@ public class ResultsListActivity extends AppCompatActivity {
                     list.add(Flowable.just(new GraphNodes(DebugDataProvider.SIMPLE_PAIR, Collections.emptyList())));
                     list.add(Flowable.just(new GraphNodes(DebugDataProvider.REGUALAR_GRID, Collections.emptyList())));
                     list.add(Flowable.just(new GraphNodes(DebugDataProvider.INTER_CONNECTED, Collections.emptyList())));
+                    list.add(Flowable.just(new GraphNodes(DebugDataProvider.HORIZONTAL_LINE, Collections.emptyList())));
+                    list.add(Flowable.just(new GraphNodes(DebugDataProvider.VERTICAL_LINE, Collections.emptyList())));
                     list.addAll(ListUtils.map(graphs, this::getGraphNodesFlowable));
                     return list;
                 });

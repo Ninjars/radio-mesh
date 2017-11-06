@@ -13,6 +13,8 @@ public class DebugDataProvider {
     public static final int SIMPLE_PAIR = -1;
     public static final int REGUALAR_GRID = -2;
     public static final int INTER_CONNECTED = -3;
+    public static final int HORIZONTAL_LINE = -4;
+    public static final int VERTICAL_LINE = -5;
 
     private static final int GRID_COUNT = 5;
     private static final int GRID_SPACING = 10;
@@ -25,9 +27,31 @@ public class DebugDataProvider {
                 return getRegularGrid();
             case INTER_CONNECTED:
                 return getInterconnected();
+            case HORIZONTAL_LINE:
+                return getHorizontalLine();
+            case VERTICAL_LINE:
+                return getVerticalLine();
             default:
                 return Collections.emptyList();
         }
+    }
+
+    private static List<ForceConnectedNode> getHorizontalLine() {
+        List<ForceConnectedNode> nodes = new ArrayList<>(10);
+        List<Integer> indexes = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        for (int i = 0; i < 10; i++) {
+            nodes.add(new ForceConnectedNode(i, indexes, 20 * i, 0));
+        }
+        return nodes;
+    }
+
+    private static List<ForceConnectedNode> getVerticalLine() {
+        List<ForceConnectedNode> nodes = new ArrayList<>(10);
+        List<Integer> indexes = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        for (int i = 0; i < 10; i++) {
+            nodes.add(new ForceConnectedNode(i, indexes, 0, 20 * i));
+        }
+        return nodes;
     }
 
     private static List<ForceConnectedNode> getSimplePair() {
