@@ -33,7 +33,7 @@ public class GameEngine {
         return datasetNodes;
     }
 
-    public void setNodes(List<ForceConnectedNode> nodes) {
+    public void setData(List<ForceConnectedNode> nodes) {
         this.datasetNodes = nodes;
         final HashSet<ForceConnection> connections = new HashSet<>(nodes.size());
         for (int i = 0; i < datasetNodes.size(); i++) {

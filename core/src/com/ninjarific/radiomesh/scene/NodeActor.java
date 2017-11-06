@@ -19,6 +19,10 @@ public class NodeActor extends Actor {
         this.texture = createTexture();
     }
 
+    public int getNodeIndex() {
+        return node.getIndex();
+    }
+
     private Texture createTexture() {
         Pixmap pixmap = new Pixmap((int) TEXTURE_SIZE, (int) TEXTURE_SIZE, Pixmap.Format.RGBA8888);
         pixmap.setColor(COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), 1);
