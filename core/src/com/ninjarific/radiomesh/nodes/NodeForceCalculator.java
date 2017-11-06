@@ -18,23 +18,7 @@ public class NodeForceCalculator {
     }
 
     public void repelNode(ForceConnectedNode node, QuadTree<ForceConnectedNode> quadTree) {
-//        applySimpleRecursiveNBodyForces(node, quadTree);
         applyTreeForce(node, quadTree);
-    }
-
-    private void applySimpleRecursiveNBodyForces(ForceConnectedNode node, QuadTree<ForceConnectedNode> tree) {
-        // repel
-        for (ForceConnectedNode other : tree.getContainedItems()) {
-            if (other != node) {
-                double dx = other.getX() - node.getX();
-                double dy = other.getY() - node.getY();
-                applyRepulsionForce(node, dx, dy);
-            }
-        }
-
-        for (QuadTree<ForceConnectedNode> subtree : tree.getSubTrees()) {
-            applySimpleRecursiveNBodyForces(node, subtree);
-        }
     }
 
     private void applyRepulsionForce(ForceConnectedNode node, double dx, double dy) {
