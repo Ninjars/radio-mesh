@@ -46,17 +46,20 @@ public class RadioMeshGame extends ApplicationAdapter {
         gameEngine.updateGameState(Gdx.graphics.getDeltaTime());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         MutableBounds nodeBounds = gameEngine.getBounds();
-        double scaleFactor = Math.max(
+        double zoom = Math.max(
                 nodeBounds.getWidth() / camera.viewportWidth,
-                nodeBounds.getHeight() / camera.viewportHeight) * 1.05;
-        camera.zoom = (float) scaleFactor;
-        float camX = (float) ((nodeBounds.left + nodeBounds.getWidth() / 2f));
-        float camY = (float) ((nodeBounds.top + nodeBounds.getHeight() / 2f));
+                nodeBounds.getHeight() / camera.viewportHeight);
+
+        float camX = (float) (nodeBounds.left + nodeBounds.getWidth() / 2f);
+        float camY = (float) (nodeBounds.top + nodeBounds.getHeight() / 2f);
+
+        camera.zoom = (float) zoom;
         camera.position.set(camX, camY, 0);
-        Gdx.app.log(TAG, "bounds: " + nodeBounds + "\nviewport " + camera.viewportWidth + "," + camera.viewportHeight
-                + " zoom " + scaleFactor + " cam " + camX + "," + camY);
+//        Gdx.app.log(TAG, "bounds: " + nodeBounds
+//                + "\nviewport " + camera.viewportWidth + "," + camera.viewportHeight
+//                + "\nzoom " + zoom + " cam " + camX + "," + camY);
         stage.draw();
-	}
+    }
 
     @Override
 	public void dispose () {

@@ -32,8 +32,8 @@ public class DebugDataProvider {
 
     private static List<ForceConnectedNode> getSimplePair() {
         List<ForceConnectedNode> nodes = new ArrayList<>();
-        nodes.add(new ForceConnectedNode(0, Collections.singletonList(1), 0, 5));
-        nodes.add(new ForceConnectedNode(1, Collections.singletonList(0), 5, 0));
+        nodes.add(new ForceConnectedNode(0, Collections.singletonList(1), 10, 5));
+        nodes.add(new ForceConnectedNode(1, Collections.singletonList(0), 5, 10));
         return nodes;
     }
 
@@ -42,7 +42,7 @@ public class DebugDataProvider {
         List<Integer> indexes = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         Random random = new Random(0);
         for (int index : indexes) {
-            nodes.add(new ForceConnectedNode(index, indexes, random.nextFloat() * 10, random.nextFloat() * 10));
+            nodes.add(new ForceConnectedNode(index, indexes, random.nextFloat() * 100, random.nextFloat() * 100));
         }
         return nodes;
     }

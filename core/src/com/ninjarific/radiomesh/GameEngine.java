@@ -16,8 +16,8 @@ public class GameEngine {
     private static final String TAG = GameEngine.class.getSimpleName();
 
     private static final double FORCE_FACTOR = 1000;
-    private static final double NODE_FORCE_FACTOR = 0.2;
-    private static final double NODE_OPTIMAL_DISTANCE = 1;
+    private static final double NODE_FORCE_FACTOR = 0.1;
+    private static final double NODE_OPTIMAL_DISTANCE = 10;
 
     private final NodeForceCalculator forceCalculator;
     private final MutableBounds nodeBounds = new MutableBounds();
@@ -49,6 +49,11 @@ public class GameEngine {
         for (ForceConnectedNode node : datasetNodes) {
             updateNodeBounds(node, nodeBounds);
         }
+        double gutter = Math.max(nodeBounds.getWidth() * 0.1, nodeBounds.getHeight() * 0.1);
+        nodeBounds.left -= gutter;
+        nodeBounds.top -= gutter;
+        nodeBounds.right += gutter;
+        nodeBounds.bottom += gutter;
     }
 
     public void updateGameState(float deltaTimeSeconds) {
@@ -76,6 +81,11 @@ public class GameEngine {
             node.clearForce();
             updateNodeBounds(node, nodeBounds);
         }
+        double gutter = Math.max(nodeBounds.getWidth() * 0.1, nodeBounds.getHeight() * 0.1);
+        nodeBounds.left -= gutter;
+        nodeBounds.top -= gutter;
+        nodeBounds.right += gutter;
+        nodeBounds.bottom += gutter;
     }
 
     private static void updateNodeBounds(ForceConnectedNode node, MutableBounds nodeBounds) {
