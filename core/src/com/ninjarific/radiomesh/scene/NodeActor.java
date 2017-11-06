@@ -1,14 +1,15 @@
 package com.ninjarific.radiomesh.scene;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
 
-public class NodeActor extends Actor {
+import java.util.Random;
 
+public class NodeActor extends Actor {
+    private static final Random colorRandom = new Random();
     private final ForceConnectedNode node;
     private final Texture texture;
 
@@ -18,9 +19,9 @@ public class NodeActor extends Actor {
     }
 
     private Texture createTexture() {
-        Pixmap pixmap = new Pixmap(10, 10, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fillCircle(5, 5, 3);
+        Pixmap pixmap = new Pixmap(3, 3, Pixmap.Format.RGBA8888);
+        pixmap.setColor(colorRandom.nextFloat(), colorRandom.nextFloat(), colorRandom.nextFloat(), 1);
+        pixmap.fillCircle(1, 1, 1);
         return new Texture(pixmap);
     }
 
