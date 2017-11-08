@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh;
+package com.ninjarific.radiomesh.scanner;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.support.annotation.Nullable;
 
-import com.ninjarific.radiomesh.database.IDatabase;
+import com.ninjarific.radiomesh.IMessageHandler;
 
 import java.util.List;
 
@@ -18,11 +18,9 @@ public class WifiScanner {
     private final WifiManager wifiManager;
     private final BroadcastReceiver broadCastReceiver;
     private final IMessageHandler messageReceiver;
-    private final IDatabase database;
+    private IScanResultsHandler resultsHandler;
 
     private ScanState scanState = ScanState.IDLE;
-    @Nullable
-    private Runnable scanFinishedCallback;
 
     private enum ScanState {
         IDLE,
@@ -30,9 +28,8 @@ public class WifiScanner {
         SCANNING
     }
 
-    public WifiScanner(Context context, IDatabase database, IMessageHandler messageReceiver) {
+    public WifiScanner(Context context, IMessageHandler messageReceiver) {
         this.messageReceiver = messageReceiver;
-        this.database = database;
         wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         broadCastReceiver = new WifiReceiver(this);
     }
@@ -54,33 +51,41 @@ public class WifiScanner {
         }
     }
 
-    public void triggerScan(@Nullable Runnable onFinishedCallback) {
-        this.scanFinishedCallback = onFinishedCallback;
-        Timber.i("startScan()");
+    /**
+     * receives callbacks on successful scans
+     * @param resultsHandler
+     */
+    public void setResultsHandler(@Nullable IScanResultsHandler resultsHandler) {
+        this.resultsHandler = resultsHandler;
+    }
+
+    /**
+     * Requires that wifi state permission has already been granted
+     */
+    public boolean triggerScan() {
+        Timber.i("startScan: results handler " + resultsHandler);
         if (!wifiManager.isWifiEnabled()) {
             Timber.w(">> aborting scan; wifi not enabled");
-            return;
+            return false;
         }
         switch (scanState) {
             case SCANNING:
                 sendMessage("Scan already running");
-                break;
+                return false;
 
             case PENDING:
                 sendMessage("Waiting for wifi adapter");
-                break;
+                return false;
 
             case IDLE:
                 if (ableToScan()) {
                     scanState = ScanState.PENDING;
                     startScan();
+                    return true;
                 }
-                break;
+                return false;
         }
-    }
-
-    public void clearBackgroundScan() {
-        scanFinishedCallback = null;
+        return false;
     }
 
     private boolean ableToScan() {
@@ -113,11 +118,12 @@ public class WifiScanner {
 
     private void onScanResults(List<ScanResult> scanResults) {
         if (scanState == ScanState.SCANNING) {
-            Timber.i("onScanResults() count " + scanResults.size());
+            Timber.i("onScanCompleted() count " + scanResults.size());
             scanState = ScanState.IDLE;
-            Runnable callback = scanFinishedCallback;
-            scanFinishedCallback = null;
-            database.registerScanResults(scanResults, callback);
+            // TODO: instead of persisting here, send results to the ui
+            if (resultsHandler != null) {
+                resultsHandler.onScanCompleted(scanResults);
+            }
 
         } else {
             Timber.i("ignoring system scan");

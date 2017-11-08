@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh;
+package com.ninjarific.radiomesh.scanner;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +15,9 @@ public class WifiReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
+        if (action == null) {
+            return;
+        }
         if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
             wifiScanner.onScanResultsAvailable();
         }

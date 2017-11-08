@@ -38,6 +38,10 @@ public class RadioMeshGame extends ApplicationAdapter {
         stageManager.dispose();
 	}
 
+	public void onScanStarted() {
+        // TODO: ui effect
+    }
+
 	public void setData(List<ForceConnectedNode> data) {
 		Gdx.app.log(TAG, "setData " + data);
 		List<Change<ForceConnectedNode>> diff = getDiff(gameEngine.getNodes(), data);

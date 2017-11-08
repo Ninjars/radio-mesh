@@ -2,10 +2,7 @@ package com.ninjarific.radiomesh.database.room;
 
 import android.arch.persistence.room.Room;
 import android.content.Context;
-import android.net.wifi.ScanResult;
-import android.support.annotation.Nullable;
 
-import com.ninjarific.radiomesh.database.IDatabase;
 import com.ninjarific.radiomesh.database.room.entities.Connection;
 import com.ninjarific.radiomesh.database.room.entities.Graph;
 import com.ninjarific.radiomesh.database.room.entities.Node;
@@ -14,7 +11,7 @@ import java.util.List;
 
 import io.reactivex.Flowable;
 
-public class DatabaseHelper implements IDatabase {
+public class DatabaseHelper {
 
     private final RoomDatabase database;
 
@@ -38,10 +35,10 @@ public class DatabaseHelper implements IDatabase {
         return database.getNodeDao().observeAll();
     }
 
-    @Override
-    public void registerScanResults(List<ScanResult> scanResults, @Nullable Runnable scanFinishedCallback) {
-        new ProcessScanResults(database, scanResults, scanFinishedCallback).execute();
-    }
+//    @Override
+//    public void registerScanResults(List<ScanResult> scanResults, @Nullable Runnable scanFinishedCallback) {
+//        new ProcessScanResults(database, scanResults, scanFinishedCallback).execute();
+//    }
 
     public List<Connection> getConnectedNodes(long nodeId) {
         return database.getConnectionDao().getConnectionsForNode(nodeId);

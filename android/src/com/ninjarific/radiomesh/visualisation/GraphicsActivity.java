@@ -1,18 +1,24 @@
 package com.ninjarific.radiomesh.visualisation;
 
 import android.content.Intent;
+import android.net.wifi.ScanResult;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.ninjarific.radiomesh.IMessageHandler;
 import com.ninjarific.radiomesh.MainApplication;
+import com.ninjarific.radiomesh.R;
 import com.ninjarific.radiomesh.RadioMeshGame;
 import com.ninjarific.radiomesh.database.room.DatabaseHelper;
 import com.ninjarific.radiomesh.database.room.entities.Connection;
 import com.ninjarific.radiomesh.database.room.entities.Node;
 import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
+import com.ninjarific.radiomesh.scanner.IScanResultsHandler;
+import com.ninjarific.radiomesh.scanner.ScanController;
 import com.ninjarific.radiomesh.utils.listutils.ListUtils;
 
 import java.util.ArrayList;
@@ -23,12 +29,17 @@ import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
+import timber.log.Timber;
 
-public class GraphicsActivity extends AndroidApplication implements IMessageHandler {
+public class GraphicsActivity extends AndroidApplication implements IMessageHandler, IScanResultsHandler, EasyPermissions.PermissionCallbacks {
     public static final String BUNDLE_GRAPH_ID = "graph_id";
+    private static final int SCAN_INTERVAL_MS = 1000 * 10;
     private Disposable disposable;
     private RadioMeshGame game;
     private long graphId;
+    private ScanController scanController;
 
     private static List<Long> getConnectedNodes(DatabaseHelper dbHelper, long nodeId) {
         // TODO: avoid iterative database lookups with a single query to get connected nodes directly via Connection object
@@ -39,6 +50,9 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.graphics);
+
+        scanController = new ScanController();
 
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         config.useAccelerometer = false;
@@ -47,7 +61,9 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
         config.useImmersiveMode = true;
         config.useRotationVectorSensor = false;
         game = new RadioMeshGame();
-        initialize(game, config);
+        View gameView = initializeForView(game, config);
+        ViewGroup container = findViewById(R.id.game_frame);
+        container.addView(gameView);
 
         Intent intent = getIntent();
         graphId = intent.getLongExtra(BUNDLE_GRAPH_ID, -1);
@@ -61,6 +77,7 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
                 .observeOn(AndroidSchedulers.mainThread())
                 //              .doOnNext(nodes -> loadingSpinner.setVisibility(View.GONE))
                 .subscribe(game::setData, Throwable::printStackTrace);
+        scanController.beginScanning(this, SCAN_INTERVAL_MS, this);
     }
 
     @Override
@@ -68,6 +85,7 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
+        scanController.stopScanning();
         super.onStop();
     }
 
@@ -98,5 +116,46 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
     @Override
     public void onMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onScanCompleted(List<ScanResult> scanResults) {
+        Timber.d(scanResults.toString());
+    }
+
+    @Override
+    public void onScanStarted() {
+        game.onScanStarted();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        scanController.beginScanning(this, SCAN_INTERVAL_MS, this);
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Timber.w("permissionsDenied");
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this).build().show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE) {
+            // Do something after user returned from app settings screen, ie after attempting to have them allow permission
+            scanController.beginScanning(this, SCAN_INTERVAL_MS, this);
+        }
     }
 }
