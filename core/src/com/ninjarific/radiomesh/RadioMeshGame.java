@@ -15,21 +15,21 @@ import java.util.Collections;
 import java.util.List;
 
 public class RadioMeshGame extends ApplicationAdapter {
-	private static final String TAG = RadioMeshGame.class.getSimpleName();
+    private static final String TAG = RadioMeshGame.class.getSimpleName();
     private GameEngine gameEngine = new GameEngine();
     private StageManager stageManager;
     private List<NodeData> currentNodes = Collections.emptyList();
 
     @Override
-	public void create () {
-		Gdx.app.setLogLevel(Application.LOG_DEBUG);
-		Gdx.gl.glClearColor(0.24f, 0.24f, 0.24f, 1);
-		stageManager = new StageManager();
-		stageManager.setData(gameEngine.getNodes());
-	}
+    public void create() {
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+        Gdx.gl.glClearColor(0.24f, 0.24f, 0.24f, 1);
+        stageManager = new StageManager();
+        stageManager.setData(gameEngine.getNodes());
+    }
 
     @Override
-	public void render () {
+    public void render() {
         gameEngine.updateGameState(Gdx.graphics.getDeltaTime());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         MutableBounds nodeBounds = gameEngine.getBounds();
@@ -37,11 +37,11 @@ public class RadioMeshGame extends ApplicationAdapter {
     }
 
     @Override
-	public void dispose () {
+    public void dispose() {
         stageManager.dispose();
-	}
+    }
 
-	public void onScanStarted() {
+    public void onScanStarted() {
         // TODO: ui effect
     }
 
@@ -54,7 +54,7 @@ public class RadioMeshGame extends ApplicationAdapter {
         }
 	}
 
-    private static <T>  List<Change<T>> getDiff(List<T> currentData, List<T> newData) {
+    private static <T> List<Change<T>> getDiff(List<T> currentData, List<T> newData) {
         List<Change<T>> returnList = new ArrayList<>(newData.size());
         for (T node : newData) {
             if (!currentData.contains(node)) {
