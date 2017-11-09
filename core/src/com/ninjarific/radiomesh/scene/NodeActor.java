@@ -12,11 +12,10 @@ public class NodeActor extends Actor {
     private static final Random COLOR_RANDOM = new Random();
     private static final float TEXTURE_SIZE = 3;
     private final INode node;
-    private final Texture texture;
+    private Texture texture;
 
     public NodeActor(INode node) {
         this.node = node;
-        this.texture = createTexture();
     }
 
     public INode getNode() {
@@ -28,11 +27,16 @@ public class NodeActor extends Actor {
         pixmap.setColor(COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), 1);
         int size = (int) Math.floor(TEXTURE_SIZE/2f);
         pixmap.fillCircle(size, size, size);
-        return new Texture(pixmap);
+        Texture newTexture = new Texture(pixmap);
+        pixmap.dispose();
+        return newTexture;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        if (texture == null) {
+            texture = createTexture();
+        }
         batch.draw(texture, node.getX() - TEXTURE_SIZE/2f, node.getY() - TEXTURE_SIZE/2f);
     }
 }
