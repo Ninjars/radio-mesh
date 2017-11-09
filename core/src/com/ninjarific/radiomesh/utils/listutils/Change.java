@@ -2,8 +2,9 @@ package com.ninjarific.radiomesh.utils.listutils;
 
 public class Change<T> {
     public enum Type {
-        ADDED,
-        REMOVED,
+        ADD,
+        REMOVE,
+        UPDATE,
     }
 
     private final Type type;

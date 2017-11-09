@@ -2,6 +2,7 @@ package com.ninjarific.radiomesh.visualisation;
 
 import android.content.Intent;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,8 @@ import com.ninjarific.radiomesh.RadioMeshGame;
 import com.ninjarific.radiomesh.database.room.DatabaseHelper;
 import com.ninjarific.radiomesh.database.room.entities.Connection;
 import com.ninjarific.radiomesh.database.room.entities.Node;
-import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
+import com.ninjarific.radiomesh.forcedirectedgraph.ForceConnectedNode;
+import com.ninjarific.radiomesh.radialgraph.NodeData;
 import com.ninjarific.radiomesh.scanner.IScanResultsHandler;
 import com.ninjarific.radiomesh.scanner.ScanController;
 import com.ninjarific.radiomesh.utils.listutils.ListUtils;
@@ -26,7 +28,6 @@ import java.util.List;
 import java.util.Random;
 
 import io.reactivex.Flowable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -72,11 +73,11 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
     @Override
     protected void onStart() {
         super.onStart();
-        disposable = getObservableData(graphId)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                //              .doOnNext(nodes -> loadingSpinner.setVisibility(View.GONE))
-                .subscribe(game::setData, Throwable::printStackTrace);
+//        disposable = getObservableData(graphId)
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                //              .doOnNext(nodes -> loadingSpinner.setVisibility(View.GONE))
+//                .subscribe(game::updateNodes, Throwable::printStackTrace);
         scanController.beginScanning(this, SCAN_INTERVAL_MS, this);
     }
 
@@ -121,6 +122,8 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
     @Override
     public void onScanCompleted(List<ScanResult> scanResults) {
         Timber.d(scanResults.toString());
+        List<NodeData> nodes = ListUtils.map(scanResults, scan -> new NodeData(scan.BSSID, scan.SSID, WifiManager.calculateSignalLevel(scan.level, 5), scan.frequency));
+        game.setData(nodes);
     }
 
     @Override

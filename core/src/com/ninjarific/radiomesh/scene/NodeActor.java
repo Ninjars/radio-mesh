@@ -4,23 +4,23 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
+import com.ninjarific.radiomesh.radialgraph.RadialNode;
 
 import java.util.Random;
 
 public class NodeActor extends Actor {
     private static final Random COLOR_RANDOM = new Random();
     private static final float TEXTURE_SIZE = 3;
-    private final ForceConnectedNode node;
+    private final RadialNode node;
     private final Texture texture;
 
-    public NodeActor(ForceConnectedNode node) {
+    public NodeActor(RadialNode node) {
         this.node = node;
         this.texture = createTexture();
     }
 
-    public int getNodeIndex() {
-        return node.getIndex();
+    public RadialNode getNode() {
+        return node;
     }
 
     private Texture createTexture() {

@@ -1,7 +1,6 @@
 package com.ninjarific.radiomesh.forcedirectedgraph;
 
-import com.ninjarific.radiomesh.nodes.Bounds;
-import com.ninjarific.radiomesh.nodes.Coordinate;
+import com.ninjarific.radiomesh.nodes.*;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,7 +1,6 @@
-package com.ninjarific.radiomesh.nodes;
+package com.ninjarific.radiomesh.forcedirectedgraph;
 
-import com.ninjarific.radiomesh.forcedirectedgraph.PositionedItem;
-import com.ninjarific.radiomesh.forcedirectedgraph.QuadTree;
+import com.ninjarific.radiomesh.nodes.PositionedItem;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class ForceConnectedNode implements PositionedItem {
         this.y = y;
     }
 
-    public List<Integer> getNeighbours() {
+    public List<Integer> getNeighbourIds() {
         return neighbours;
     }
 
@@ -40,12 +39,24 @@ public class ForceConnectedNode implements PositionedItem {
         this.containingLeaf = quadTree;
     }
 
+    @Override
+    public void updatePosition(int timeDeltaMs) {
+
+    }
+
+    @Override
+    public void updateNeighbours(List nodes) {
+
+    }
+
+
     public void clearForce() {
         dx = 0;
         dy = 0;
     }
 
-    public void addForce(double fx, double fy) {
+    @Override
+    public void addForce(float fx, float fy) {
         dx += fx;
         dy += fy;
     }

@@ -1,6 +1,6 @@
 package com.ninjarific.radiomesh.visualisation;
 
-import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
+import com.ninjarific.radiomesh.forcedirectedgraph.ForceConnectedNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;

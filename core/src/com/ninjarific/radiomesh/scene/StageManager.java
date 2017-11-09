@@ -6,8 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
 import com.ninjarific.radiomesh.nodes.MutableBounds;
+import com.ninjarific.radiomesh.radialgraph.RadialNode;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
 import java.util.ArrayList;
@@ -45,33 +45,41 @@ public class StageManager {
         stage.dispose();
     }
 
-    public void updateNodes(List<Change<ForceConnectedNode>> changes) {
-        for (Change<ForceConnectedNode> change : changes) {
-            ForceConnectedNode changeNode = change.getValue();
+    public void updateNodes(List<Change<RadialNode>> changes) {
+        for (Change<RadialNode> change : changes) {
+            RadialNode changeNode = change.getValue();
             switch (change.getType()) {
-                case ADDED:
+                case ADD:
                     addNode(changeNode);
                     break;
-                case REMOVED:
-                    for (NodeActor actor : nodeActors) {
-                        if (actor.getNodeIndex() == changeNode.getIndex()) {
-                            actor.remove();
-                            nodeActors.remove(actor);
-                            break;
-                        }
+                case REMOVE:
+                    NodeActor removeActor = getActorByNode(change.getValue());
+                    if (removeActor != null) {
+                        removeActor.remove();
+                        nodeActors.remove(removeActor);
                     }
+                    break;
             }
         }
     }
 
-    private void addNode(ForceConnectedNode node) {
+    private NodeActor getActorByNode(RadialNode node) {
+        for (NodeActor actor : nodeActors) {
+            if (actor.getNode().equals(node)) {
+                return actor;
+            }
+        }
+        return null;
+    }
+
+    private void addNode(RadialNode node) {
         NodeActor newActor = new NodeActor(node);
         nodeActors.add(newActor);
         stage.addActor(newActor);
     }
 
-    public void setData(List<ForceConnectedNode> nodes) {
-        for (ForceConnectedNode node : nodes) {
+    public void setData(List<RadialNode> nodes) {
+        for (RadialNode node : nodes) {
             addNode(node);
         }
     }

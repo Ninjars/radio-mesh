@@ -4,18 +4,21 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.ninjarific.radiomesh.nodes.ForceConnectedNode;
 import com.ninjarific.radiomesh.nodes.MutableBounds;
+import com.ninjarific.radiomesh.radialgraph.NodeData;
+import com.ninjarific.radiomesh.radialgraph.RadialNode;
 import com.ninjarific.radiomesh.scene.StageManager;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RadioMeshGame extends ApplicationAdapter {
 	private static final String TAG = RadioMeshGame.class.getSimpleName();
     private GameEngine gameEngine = new GameEngine();
     private StageManager stageManager;
+    private List<NodeData> currentNodes = Collections.emptyList();
 
     @Override
 	public void create () {
@@ -42,27 +45,28 @@ public class RadioMeshGame extends ApplicationAdapter {
         // TODO: ui effect
     }
 
-	public void setData(List<ForceConnectedNode> data) {
-		Gdx.app.log(TAG, "setData " + data);
-		List<Change<ForceConnectedNode>> diff = getDiff(gameEngine.getNodes(), data);
-        gameEngine.setData(data);
+	public void setData(List<NodeData> data) {
+		Gdx.app.log(TAG, "updateNodes " + data);
+		List<Change<NodeData>> diff = getDiff(currentNodes, data);
+        List<Change<RadialNode>> nodeChanges = gameEngine.updateNodes(diff);
         if (stageManager != null) {
-            stageManager.updateNodes(diff);
+            stageManager.updateNodes(nodeChanges);
         }
 	}
 
-    private List<Change<ForceConnectedNode>> getDiff(List<ForceConnectedNode> currentData,
-                                                     List<ForceConnectedNode> newData) {
-        List<Change<ForceConnectedNode>> returnList = new ArrayList<>(newData.size());
-        for (ForceConnectedNode node : newData) {
+    private static <T>  List<Change<T>> getDiff(List<T> currentData, List<T> newData) {
+        List<Change<T>> returnList = new ArrayList<>(newData.size());
+        for (T node : newData) {
             if (!currentData.contains(node)) {
-                returnList.add(new Change<>(Change.Type.ADDED, node));
+                returnList.add(new Change<>(Change.Type.ADD, node));
             }
         }
 
-        for (ForceConnectedNode node : currentData) {
+        for (T node : currentData) {
             if (!newData.contains(node)) {
-                returnList.add(new Change<>(Change.Type.REMOVED, node));
+                returnList.add(new Change<>(Change.Type.REMOVE, node));
+            } else {
+                returnList.add(new Change<>(Change.Type.UPDATE, node));
             }
         }
         return returnList;

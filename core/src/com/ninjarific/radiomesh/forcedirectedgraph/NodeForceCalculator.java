@@ -1,8 +1,8 @@
-package com.ninjarific.radiomesh.nodes;
+package com.ninjarific.radiomesh.forcedirectedgraph;
 
-import com.ninjarific.radiomesh.forcedirectedgraph.QuadTree;
+import com.ninjarific.radiomesh.nodes.*;
 
-public class NodeForceCalculator {
+public class NodeForceCalculator<T extends PositionedItem> {
     private static final double TREE_INEQUALITY = 1.2;
     private static final double MIN_FORCE_THRESHOLD = 0.00001;
     private static final String LOGTAG = NodeForceCalculator.class.getSimpleName();
@@ -17,11 +17,11 @@ public class NodeForceCalculator {
         maxForce = 10;
     }
 
-    public void repelNode(ForceConnectedNode node, QuadTree<ForceConnectedNode> quadTree) {
+    public void repelNode(T node, QuadTree<T> quadTree) {
         applyTreeForce(node, quadTree);
     }
 
-    private void applyRepulsionForce(ForceConnectedNode node, double dx, double dy) {
+    private void applyRepulsionForce(T node, double dx, double dy) {
         double mag = Math.sqrt(dx * dx + dy * dy);
         if (mag < MIN_FORCE_THRESHOLD) {
             return;
@@ -29,7 +29,7 @@ public class NodeForceCalculator {
         applyRepulsionForce(node, dx, dy, 1, mag);
     }
 
-    private void applyRepulsionForce(ForceConnectedNode node, double dx, double dy, double multiplier, double magnitude) {
+    private void applyRepulsionForce(T node, double dx, double dy, double multiplier, double magnitude) {
         double vx = dx / magnitude;
         double vy = dy / magnitude;
 
@@ -37,15 +37,15 @@ public class NodeForceCalculator {
         double fx = vx * force;
         double fy = vy * force;
 
-        node.addForce(fx, fy);
+        node.addForce((float) fx, (float) fy);
 //        Timber.i("applyRepulsionForce " + node.getIndex() + " force: " + force + " multiplied by: " + multiplier + "   dx,dy: " + dx + ", " + dy + "   vx,vy: " + vx + ", " + vy + "   fx,fy: " + fx + ", " + fy);
 //        Gdx.app.debug(LOGTAG, "repel," + node.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + "," + node.getX() + "," + node.getY());
     }
 
-    private void applyTreeForce(ForceConnectedNode node, QuadTree<ForceConnectedNode> tree) {
+    private void applyTreeForce(T node, QuadTree<T> tree) {
         if (tree.isEmpty()) return;
         if (tree.isLeaf()) {
-            for (ForceConnectedNode other : tree.getContainedItems()) {
+            for (T other : tree.getContainedItems()) {
                 if (other != node) {
                     double dx = other.getX() - node.getX();
                     double dy = other.getY() - node.getY();
@@ -57,24 +57,24 @@ public class NodeForceCalculator {
             if (leafIsFar(distance, tree)) {
                 applyRepulsionForce(node, getDx(node, tree), getDy(node, tree), tree.getTotalContainedItemCount(), distance);
             } else {
-                for (QuadTree<ForceConnectedNode> subtree : tree.getSubTrees()) {
+                for (QuadTree<T> subtree : tree.getSubTrees()) {
                     applyTreeForce(node, subtree);
                 }
             }
         }
     }
 
-    private static double getDx(ForceConnectedNode node, QuadTree tree) {
+    private static <T extends PositionedItem> double getDx(T node, QuadTree tree) {
         Coordinate treeCenterOfGravity = tree.getCenterOfGravity();
         return treeCenterOfGravity.x - node.getX();
     }
 
-    private static double getDy(ForceConnectedNode node, QuadTree tree) {
+    private static <T extends PositionedItem> double getDy(T node, QuadTree tree) {
         Coordinate treeCenterOfGravity = tree.getCenterOfGravity();
         return treeCenterOfGravity.y - node.getY();
     }
 
-    private static double quadTreeDistance(ForceConnectedNode node, QuadTree tree) {
+    private static <T extends PositionedItem> double quadTreeDistance(T node, QuadTree tree) {
         Coordinate treeCenterOfGravity = tree.getCenterOfGravity();
         if (treeCenterOfGravity == null) {
             return 0;
@@ -88,7 +88,7 @@ public class NodeForceCalculator {
         return quadTree.getBounds().getWidth() / distance <= TREE_INEQUALITY;
     }
 
-    public void attractNodes(ForceConnectedNode nodeA, ForceConnectedNode nodeB) {
+    public void attractNodes(T nodeA, T nodeB) {
         double dx = nodeB.getX() - nodeA.getX();
         double dy = nodeB.getY() - nodeA.getY();
 
@@ -104,8 +104,8 @@ public class NodeForceCalculator {
         double fx = vx * force;
         double fy = vy * force;
 
-        nodeA.addForce(fx, fy);
-        nodeB.addForce(-fx, -fy);
+        nodeA.addForce((float) fx, (float) fy);
+        nodeB.addForce((float) -fx, (float) -fy);
 //        Gdx.app.debug(LOGTAG, "attract," + nodeA.getIndex() + "," + force + "," + dx + "," + dy + "," + fx + "," + fy);
 //        Gdx.app.debug(LOGTAG, "attract," + nodeB.getIndex() + "," + -force + "," + dx + "," + dy + "," + fx + "," + fy + ",nodeA," + nodeA.getX() + "," + nodeA.getY() + ",nodeB," + nodeB.getX() + "," + nodeB.getY());
     }
