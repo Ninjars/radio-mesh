@@ -22,4 +22,9 @@ public class Change<T> {
     public T getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "<Change " + type + " " + value + ">";
+    }
 }
