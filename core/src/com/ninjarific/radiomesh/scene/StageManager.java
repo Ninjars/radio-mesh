@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ninjarific.radiomesh.nodes.MutableBounds;
-import com.ninjarific.radiomesh.radialgraph.RadialNode;
+import com.ninjarific.radiomesh.nodes.INode;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
 import java.util.ArrayList;
@@ -45,9 +45,9 @@ public class StageManager {
         stage.dispose();
     }
 
-    public void updateNodes(List<Change<RadialNode>> changes) {
-        for (Change<RadialNode> change : changes) {
-            RadialNode changeNode = change.getValue();
+    public void updateNodes(List<Change<INode>> changes) {
+        for (Change<INode> change : changes) {
+            INode changeNode = change.getValue();
             switch (change.getType()) {
                 case ADD:
                     addNode(changeNode);
@@ -63,7 +63,7 @@ public class StageManager {
         }
     }
 
-    private NodeActor getActorByNode(RadialNode node) {
+    private NodeActor getActorByNode(INode node) {
         for (NodeActor actor : nodeActors) {
             if (actor.getNode().equals(node)) {
                 return actor;
@@ -72,14 +72,14 @@ public class StageManager {
         return null;
     }
 
-    private void addNode(RadialNode node) {
+    private void addNode(INode node) {
         NodeActor newActor = new NodeActor(node);
         nodeActors.add(newActor);
         stage.addActor(newActor);
     }
 
-    public void setData(List<RadialNode> nodes) {
-        for (RadialNode node : nodes) {
+    public void setData(List<INode> nodes) {
+        for (INode node : nodes) {
             addNode(node);
         }
     }

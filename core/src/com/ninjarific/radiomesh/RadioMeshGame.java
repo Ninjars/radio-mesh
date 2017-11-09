@@ -4,9 +4,9 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.ninjarific.radiomesh.nodes.INode;
 import com.ninjarific.radiomesh.nodes.MutableBounds;
 import com.ninjarific.radiomesh.radialgraph.NodeData;
-import com.ninjarific.radiomesh.radialgraph.RadialNode;
 import com.ninjarific.radiomesh.scene.StageManager;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
@@ -48,7 +48,7 @@ public class RadioMeshGame extends ApplicationAdapter {
 	public void setData(List<NodeData> data) {
 		Gdx.app.log(TAG, "updateNodes " + data);
 		List<Change<NodeData>> diff = getDiff(currentNodes, data);
-        List<Change<RadialNode>> nodeChanges = gameEngine.updateNodes(diff);
+        List<Change<INode>> nodeChanges = gameEngine.updateNodes(diff);
         if (stageManager != null) {
             stageManager.updateNodes(nodeChanges);
         }

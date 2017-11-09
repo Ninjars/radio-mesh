@@ -1,14 +1,14 @@
 package com.ninjarific.radiomesh.forcedirectedgraph;
 
-import com.ninjarific.radiomesh.nodes.PositionedItem;
+import com.ninjarific.radiomesh.nodes.INode;
 
 public class ForceConnection {
 
-    public final PositionedItem from;
-    public final PositionedItem to;
+    public final INode from;
+    public final INode to;
     private final int hashCode;
 
-    public ForceConnection(PositionedItem from, PositionedItem to) {
+    public ForceConnection(INode from, INode to) {
         this.from = from;
         this.to = to;
         this.hashCode =  17 * Math.max(to.hashCode(), from.hashCode()) + 3 * Math.min(to.hashCode(), from.hashCode());
@@ -26,7 +26,7 @@ public class ForceConnection {
         return hashCode;
     }
 
-    public boolean contains(PositionedItem node) {
+    public boolean contains(INode node) {
         return from == node || to == node;
     }
 }

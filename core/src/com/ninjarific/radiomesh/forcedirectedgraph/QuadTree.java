@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class QuadTree<T extends PositionedItem> {
+public class QuadTree<T extends INode> {
     private static final int MAX_DEPTH = 7;
     final List<QuadTree<T>> subNodes = new ArrayList<>(4);
     private final Bounds bounds;

@@ -2,7 +2,7 @@ package com.ninjarific.radiomesh.forcedirectedgraph;
 
 import com.ninjarific.radiomesh.nodes.*;
 
-public class NodeForceCalculator<T extends PositionedItem> {
+public class NodeForceCalculator<T extends INode> {
     private static final double TREE_INEQUALITY = 1.2;
     private static final double MIN_FORCE_THRESHOLD = 0.00001;
     private static final String LOGTAG = NodeForceCalculator.class.getSimpleName();
@@ -64,17 +64,17 @@ public class NodeForceCalculator<T extends PositionedItem> {
         }
     }
 
-    private static <T extends PositionedItem> double getDx(T node, QuadTree tree) {
+    private static <T extends INode> double getDx(T node, QuadTree tree) {
         Coordinate treeCenterOfGravity = tree.getCenterOfGravity();
         return treeCenterOfGravity.x - node.getX();
     }
 
-    private static <T extends PositionedItem> double getDy(T node, QuadTree tree) {
+    private static <T extends INode> double getDy(T node, QuadTree tree) {
         Coordinate treeCenterOfGravity = tree.getCenterOfGravity();
         return treeCenterOfGravity.y - node.getY();
     }
 
-    private static <T extends PositionedItem> double quadTreeDistance(T node, QuadTree tree) {
+    private static <T extends INode> double quadTreeDistance(T node, QuadTree tree) {
         Coordinate treeCenterOfGravity = tree.getCenterOfGravity();
         if (treeCenterOfGravity == null) {
             return 0;

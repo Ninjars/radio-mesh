@@ -1,14 +1,14 @@
 package com.ninjarific.radiomesh.radialgraph;
 
 import com.ninjarific.radiomesh.forcedirectedgraph.QuadTree;
-import com.ninjarific.radiomesh.nodes.PositionedItem;
+import com.ninjarific.radiomesh.nodes.INode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RadialNode implements PositionedItem<RadialNode> {
+public class RadialNode implements INode {
 
-    private final List<RadialNode> neighbourNodes = new ArrayList<>();
+    private final List<INode> neighbourNodes = new ArrayList<>();
     private NodeData nodeData;
     private float x;
     private float y;
@@ -52,20 +52,23 @@ public class RadialNode implements PositionedItem<RadialNode> {
     }
 
     @Override
-    public void updateNeighbours(List<RadialNode> nodes) {
+    public void updateNeighbours(List<INode> nodes) {
         neighbourNodes.clear();
         neighbourNodes.addAll(nodes);
     }
 
+    @Override
     public NodeData getData() {
         return nodeData;
     }
 
+    @Override
     public void updateData(NodeData value) {
         nodeData = value;
     }
 
-    public List<RadialNode> getNeighbours() {
+    @Override
+    public List<INode> getNeighbours() {
         return neighbourNodes;
     }
 }

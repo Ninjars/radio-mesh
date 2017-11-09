@@ -1,10 +1,11 @@
 package com.ninjarific.radiomesh.forcedirectedgraph;
 
-import com.ninjarific.radiomesh.nodes.PositionedItem;
+import com.ninjarific.radiomesh.nodes.INode;
+import com.ninjarific.radiomesh.radialgraph.NodeData;
 
 import java.util.List;
 
-public class ForceConnectedNode implements PositionedItem {
+public class ForceConnectedNode implements INode {
     private final int index;
     private List<Integer> neighbours;
     private float x;
@@ -59,6 +60,21 @@ public class ForceConnectedNode implements PositionedItem {
     public void addForce(float fx, float fy) {
         dx += fx;
         dy += fy;
+    }
+
+    @Override
+    public List<INode> getNeighbours() {
+        return null;
+    }
+
+    @Override
+    public void updateData(NodeData value) {
+
+    }
+
+    @Override
+    public NodeData getData() {
+        return null;
     }
 
     public void applyForce(double fx, double fy) {
