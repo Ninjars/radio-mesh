@@ -45,14 +45,17 @@ public class RadioMeshGame extends ApplicationAdapter {
         // TODO: ui effect
     }
 
-	public void setData(List<NodeData> data) {
-		Gdx.app.log(TAG, "updateNodes " + data);
-		List<Change<NodeData>> diff = getDiff(currentNodes, data);
+    public void setData(List<NodeData> data) {
+        List<Change<NodeData>> diff = getDiff(currentNodes, data);
         List<Change<INode>> nodeChanges = gameEngine.updateNodes(diff);
+//        Gdx.app.log(TAG, "updateNodes " + data
+//                + "\ndiff: " + diff
+//                + "\nnodeChanges: " + nodeChanges);
         if (stageManager != null) {
             stageManager.updateNodes(nodeChanges);
         }
-	}
+        currentNodes = data;
+    }
 
     private static <T> List<Change<T>> getDiff(List<T> currentData, List<T> newData) {
         List<Change<T>> returnList = new ArrayList<>(newData.size());
