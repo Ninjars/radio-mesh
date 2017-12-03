@@ -19,34 +19,34 @@ import java.util.List;
 
 public class StageManager<T extends IPositionProvider> {
     private final IStageEventHandler eventHandler;
-    private Stage stage;
-    private OrthographicCamera camera;
+    private Stage gameStage;
+    private OrthographicCamera gameCamera;
     private List<NodeActor> nodeActors = new ArrayList<>();
 
     public StageManager(InputMultiplexer inputMultiplexer, IStageEventHandler eventHandler) {
         this.eventHandler = eventHandler;
-        camera = new OrthographicCamera();
-        camera.setToOrtho(true);
-        Viewport viewport = new ScalingViewport(Scaling.fit, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
-        stage = new Stage(viewport);
-        inputMultiplexer.addProcessor(stage);
+        gameCamera = new OrthographicCamera();
+        gameCamera.setToOrtho(true);
+        Viewport viewport = new ScalingViewport(Scaling.fit, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), gameCamera);
+        gameStage = new Stage(viewport);
+        inputMultiplexer.addProcessor(gameStage);
     }
 
     public void draw(MutableBounds nodeBounds) {
         double zoom = Math.max(
-                nodeBounds.getWidth() / camera.viewportWidth,
-                nodeBounds.getHeight() / camera.viewportHeight);
+                nodeBounds.getWidth() / gameCamera.viewportWidth,
+                nodeBounds.getHeight() / gameCamera.viewportHeight);
 
         float camX = (float) (nodeBounds.left + nodeBounds.getWidth() / 2f);
         float camY = (float) (nodeBounds.top + nodeBounds.getHeight() / 2f);
 
-        camera.zoom = (float) zoom;
-        camera.position.set(camX, camY, 0);
-        stage.draw();
+        gameCamera.zoom = (float) zoom;
+        gameCamera.position.set(camX, camY, 0);
+        gameStage.draw();
     }
 
     public void dispose() {
-        stage.dispose();
+        gameStage.dispose();
     }
 
     public void updateNodes(List<Change<T>> changes) {
@@ -79,7 +79,7 @@ public class StageManager<T extends IPositionProvider> {
     private void addNode(T node) {
         NodeActor newActor = new NodeActor<>(node);
         nodeActors.add(newActor);
-        stage.addActor(newActor);
+        gameStage.addActor(newActor);
         newActor.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
