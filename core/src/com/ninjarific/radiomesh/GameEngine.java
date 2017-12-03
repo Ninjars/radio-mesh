@@ -41,13 +41,7 @@ public class GameEngine {
         // sort node changes to have updates first to help maintain node
         // ordering of updated nodes and reduce visual changes when adding and removing nodes
         Collections.sort(nodes, (left, right) -> {
-            if (left.getType() == right.getType()) {
-                return left.getValue().getBssid().compareTo(right.getValue().getBssid());
-            } else if (left.getType() == Change.Type.UPDATE) {
-                return -1;
-            } else {
-                return 0;
-            }
+            return left.getValue().getBssid().compareTo(right.getValue().getBssid());
         });
 
         List<Change<RadialNode>> radialNodeChanges = new ArrayList<>(nodes.size());
