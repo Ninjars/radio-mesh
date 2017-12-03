@@ -18,11 +18,8 @@ import com.ninjarific.radiomesh.database.room.DatabaseHelper;
 import com.ninjarific.radiomesh.database.room.entities.Graph;
 import com.ninjarific.radiomesh.scanner.ScanController;
 import com.ninjarific.radiomesh.utils.listutils.ListUtils;
-import com.ninjarific.radiomesh.visualisation.DebugDataProvider;
 import com.ninjarific.radiomesh.visualisation.GraphicsActivity;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Flowable;
@@ -68,14 +65,7 @@ public class ResultsListActivity extends AppCompatActivity {
         Flowable<List<Flowable<GraphNodes>>> graphNodesFlowable = dbHelper.observeGraphs()
                 .map(graphs ->  {
                     Timber.i("graphNodesFlowable fired");
-                    List<Flowable<GraphNodes>> list = new ArrayList<>();
-                    list.add(Flowable.just(new GraphNodes(DebugDataProvider.SIMPLE_PAIR, Collections.emptyList())));
-                    list.add(Flowable.just(new GraphNodes(DebugDataProvider.REGUALAR_GRID, Collections.emptyList())));
-                    list.add(Flowable.just(new GraphNodes(DebugDataProvider.INTER_CONNECTED, Collections.emptyList())));
-                    list.add(Flowable.just(new GraphNodes(DebugDataProvider.HORIZONTAL_LINE, Collections.emptyList())));
-                    list.add(Flowable.just(new GraphNodes(DebugDataProvider.VERTICAL_LINE, Collections.emptyList())));
-                    list.addAll(ListUtils.map(graphs, this::getGraphNodesFlowable));
-                    return list;
+                    return ListUtils.map(graphs, this::getGraphNodesFlowable);
                 });
         disposable = adapter.bind(graphNodesFlowable);
 

@@ -1,74 +1,65 @@
 package com.ninjarific.radiomesh.radialgraph;
 
-import com.ninjarific.radiomesh.forcedirectedgraph.QuadTree;
-import com.ninjarific.radiomesh.nodes.INode;
+import com.ninjarific.radiomesh.nodes.IPositionProvider;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class RadialNode implements INode {
+public class RadialNode implements IPositionProvider {
 
-    private final List<INode> neighbourNodes = new ArrayList<>();
+    private final List<RadialNode> childNodes;
+    private RadialNode parentNode; // null for root node
     private NodeData nodeData;
-    private float x;
-    private float y;
-    private float dx;
-    private float dy;
-    private QuadTree containingLeaf;
+    private RadialPositioningModel position;
 
-    public RadialNode(NodeData nodeData, float initialX, float initialY) {
+    /**
+     * Radial graph node
+     *
+     * @param nodeData node metadata
+     * @param parentNode node one step up the tree - null for root node
+     * @param childNodes list of nodes one step down the tree from this node
+     * @param position positional information
+     */
+    public RadialNode(NodeData nodeData, RadialNode parentNode,
+                      List<RadialNode> childNodes, RadialPositioningModel position) {
         this.nodeData = nodeData;
-        this.x = initialX;
-        this.y = initialY;
+        this.parentNode = parentNode;
+        this.childNodes = childNodes;
+        this.position = position;
     }
 
     @Override
     public float getX() {
-        return x;
+        return position.getX();
     }
 
     @Override
     public float getY() {
-        return y;
+        return position.getY();
     }
 
-    @Override
-    public void setContainingLeaf(QuadTree quadTree) {
-        this.containingLeaf = quadTree;
+    public void update(long timeDeltaMs) {
+        position.update(timeDeltaMs);
     }
 
-    @Override
-    public void updatePosition(int timeDeltaMs) {
-        x += dx;
-        y += dy;
-        dx = 0;
-        dy = 0;
+    public void setPosition(RadialPositioningModel newPosition) {
+        newPosition.beginTransitionFrom(position.getX(), position.getY());
+        position = newPosition;
     }
 
-    @Override
-    public void addForce(float fx, float fy) {
-        dx += fx;
-        dy += fy;
+    public void setChildNodes(List<RadialNode> nodes) {
+        childNodes.clear();
+        childNodes.addAll(nodes);
     }
 
-    @Override
-    public void updateNeighbours(List<INode> nodes) {
-        neighbourNodes.clear();
-        neighbourNodes.addAll(nodes);
-    }
-
-    @Override
     public NodeData getData() {
         return nodeData;
     }
 
-    @Override
     public void updateData(NodeData value) {
         nodeData = value;
     }
 
-    @Override
-    public List<INode> getNeighbours() {
-        return neighbourNodes;
+    public RadialNode getParentNode() {
+        return parentNode;
     }
 }

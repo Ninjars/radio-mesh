@@ -4,29 +4,30 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.ninjarific.radiomesh.nodes.INode;
+import com.ninjarific.radiomesh.Constants;
+import com.ninjarific.radiomesh.nodes.IPositionProvider;
 
 import java.util.Random;
 
 public class NodeActor extends Actor {
     private static final Random COLOR_RANDOM = new Random();
-    private static final float TEXTURE_SIZE = 3;
-    private final INode node;
+    private final int size = Constants.NODE_WIDTH;
+    private final IPositionProvider positionProvider;
     private Texture texture;
 
-    public NodeActor(INode node) {
-        this.node = node;
+    public NodeActor(IPositionProvider node) {
+        this.positionProvider = node;
     }
 
-    public INode getNode() {
-        return node;
+    public IPositionProvider getPositionProvider() {
+        return positionProvider;
     }
 
     private Texture createTexture() {
-        Pixmap pixmap = new Pixmap((int) TEXTURE_SIZE, (int) TEXTURE_SIZE, Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
         pixmap.setColor(COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), 1);
-        int size = (int) Math.floor(TEXTURE_SIZE/2f);
-        pixmap.fillCircle(size, size, size);
+        int radius = (int) Math.floor(this.size /2f);
+        pixmap.fillCircle(radius, radius, radius);
         Texture newTexture = new Texture(pixmap);
         pixmap.dispose();
         return newTexture;
@@ -37,6 +38,6 @@ public class NodeActor extends Actor {
         if (texture == null) {
             texture = createTexture();
         }
-        batch.draw(texture, node.getX() - TEXTURE_SIZE/2f, node.getY() - TEXTURE_SIZE/2f);
+        batch.draw(texture, positionProvider.getX() - size /2f, positionProvider.getY() - size /2f);
     }
 }

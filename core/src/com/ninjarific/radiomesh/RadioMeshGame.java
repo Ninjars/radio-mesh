@@ -4,9 +4,9 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.ninjarific.radiomesh.nodes.INode;
 import com.ninjarific.radiomesh.nodes.MutableBounds;
 import com.ninjarific.radiomesh.radialgraph.NodeData;
+import com.ninjarific.radiomesh.radialgraph.RadialNode;
 import com.ninjarific.radiomesh.scene.StageManager;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
@@ -17,14 +17,14 @@ import java.util.List;
 public class RadioMeshGame extends ApplicationAdapter {
     private static final String TAG = RadioMeshGame.class.getSimpleName();
     private GameEngine gameEngine = new GameEngine();
-    private StageManager stageManager;
+    private StageManager<RadialNode> stageManager;
     private List<NodeData> currentNodes = Collections.emptyList();
 
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         Gdx.gl.glClearColor(0.24f, 0.24f, 0.24f, 1);
-        stageManager = new StageManager();
+        stageManager = new StageManager<>();
         stageManager.setData(gameEngine.getNodes());
     }
 
@@ -47,7 +47,7 @@ public class RadioMeshGame extends ApplicationAdapter {
 
     public void setData(List<NodeData> data) {
         List<Change<NodeData>> diff = getDiff(currentNodes, data);
-        List<Change<INode>> nodeChanges = gameEngine.updateNodes(diff);
+        List<Change<RadialNode>> nodeChanges = gameEngine.updateNodes(diff);
 //        Gdx.app.log(TAG, "updateNodes " + data
 //                + "\ndiff: " + diff
 //                + "\nnodeChanges: " + nodeChanges);

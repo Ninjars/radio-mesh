@@ -6,14 +6,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.ninjarific.radiomesh.nodes.IPositionProvider;
 import com.ninjarific.radiomesh.nodes.MutableBounds;
-import com.ninjarific.radiomesh.nodes.INode;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StageManager {
+public class StageManager<T extends IPositionProvider> {
     private Stage stage;
     private OrthographicCamera camera;
     private List<NodeActor> nodeActors = new ArrayList<>();
@@ -45,9 +45,9 @@ public class StageManager {
         stage.dispose();
     }
 
-    public void updateNodes(List<Change<INode>> changes) {
-        for (Change<INode> change : changes) {
-            INode changeNode = change.getValue();
+    public void updateNodes(List<Change<T>> changes) {
+        for (Change<T> change : changes) {
+            T changeNode = change.getValue();
             switch (change.getType()) {
                 case ADD:
                     addNode(changeNode);
@@ -63,23 +63,23 @@ public class StageManager {
         }
     }
 
-    private NodeActor getActorByNode(INode node) {
+    private NodeActor getActorByNode(T node) {
         for (NodeActor actor : nodeActors) {
-            if (actor.getNode().equals(node)) {
+            if (actor.getPositionProvider().equals(node)) {
                 return actor;
             }
         }
         return null;
     }
 
-    private void addNode(INode node) {
+    private void addNode(T node) {
         NodeActor newActor = new NodeActor(node);
         nodeActors.add(newActor);
         stage.addActor(newActor);
     }
 
-    public void setData(List<INode> nodes) {
-        for (INode node : nodes) {
+    public void setData(List<T> nodes) {
+        for (T node : nodes) {
             addNode(node);
         }
     }

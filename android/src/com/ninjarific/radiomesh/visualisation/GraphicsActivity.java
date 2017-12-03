@@ -11,25 +11,18 @@ import android.widget.Toast;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.ninjarific.radiomesh.IMessageHandler;
-import com.ninjarific.radiomesh.MainApplication;
 import com.ninjarific.radiomesh.R;
 import com.ninjarific.radiomesh.RadioMeshGame;
 import com.ninjarific.radiomesh.database.room.DatabaseHelper;
 import com.ninjarific.radiomesh.database.room.entities.Connection;
-import com.ninjarific.radiomesh.database.room.entities.Node;
-import com.ninjarific.radiomesh.forcedirectedgraph.ForceConnectedNode;
 import com.ninjarific.radiomesh.radialgraph.NodeData;
 import com.ninjarific.radiomesh.scanner.IScanResultsHandler;
 import com.ninjarific.radiomesh.scanner.ScanController;
 import com.ninjarific.radiomesh.utils.listutils.ListUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
@@ -88,30 +81,6 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
         }
         scanController.stopScanning();
         super.onStop();
-    }
-
-    private Flowable<List<ForceConnectedNode>> getObservableData(long graphId) {
-        if (graphId < 0) {
-            return Flowable.just(DebugDataProvider.getDebugData((int) graphId));
-        }
-
-        Random random = new Random(0);
-        DatabaseHelper dbHelper = MainApplication.getDatabaseHelper();
-        return dbHelper.getNodesForGraphObs(graphId)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(Schedulers.computation())
-                .map(dataNodes -> {
-                    List<Long> nodeIds = ListUtils.map(dataNodes, Node::getId);
-                    List<ForceConnectedNode> connectedNodes = new ArrayList<>();
-                    for (int i = 0; i < dataNodes.size(); i++) {
-                        Node node = dataNodes.get(i);
-                        List<Long> neighbourNodeIds = getConnectedNodes(dbHelper, node.getId());
-                        List<Integer> neighbourIndexes = ListUtils.map(neighbourNodeIds, nodeIds::indexOf);
-                        ForceConnectedNode connectedNode = new ForceConnectedNode(i, neighbourIndexes, random.nextFloat() * 100, random.nextFloat() * 100);
-                        connectedNodes.add(connectedNode);
-                    }
-                    return connectedNodes;
-                });
     }
 
     @Override
