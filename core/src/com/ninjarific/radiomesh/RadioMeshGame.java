@@ -3,7 +3,11 @@ package com.ninjarific.radiomesh;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
+import com.ninjarific.radiomesh.interaction.IStageEventHandler;
+import com.ninjarific.radiomesh.interaction.StageEventHandler;
+import com.ninjarific.radiomesh.nodes.IPositionProvider;
 import com.ninjarific.radiomesh.nodes.MutableBounds;
 import com.ninjarific.radiomesh.radialgraph.NodeData;
 import com.ninjarific.radiomesh.radialgraph.RadialNode;
@@ -19,13 +23,17 @@ public class RadioMeshGame extends ApplicationAdapter {
     private GameEngine gameEngine = new GameEngine();
     private StageManager<RadialNode> stageManager;
     private List<NodeData> currentNodes = Collections.emptyList();
+    private IStageEventHandler stageEventHandler;
 
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         Gdx.gl.glClearColor(0.24f, 0.24f, 0.24f, 1);
-        stageManager = new StageManager<>();
+        stageEventHandler = new StageEventHandler<>(this);
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        stageManager = new StageManager<>(inputMultiplexer, stageEventHandler);
         stageManager.setData(gameEngine.getNodes());
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
@@ -73,5 +81,14 @@ public class RadioMeshGame extends ApplicationAdapter {
             }
         }
         return returnList;
+    }
+
+    public <T extends IPositionProvider> boolean onNodeSelected(T selectedNode) {
+        if (selectedNode instanceof RadialNode) {
+            Gdx.app.debug(TAG, "tapped on node " + ((RadialNode) selectedNode).getData().getSsid());
+            return true;
+        } else {
+            return false;
+        }
     }
 }

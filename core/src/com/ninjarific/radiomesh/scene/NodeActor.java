@@ -4,23 +4,27 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.ninjarific.radiomesh.Constants;
 import com.ninjarific.radiomesh.nodes.IPositionProvider;
 
 import java.util.Random;
 
-public class NodeActor extends Actor {
+public class NodeActor<T extends IPositionProvider> extends Actor {
     private static final Random COLOR_RANDOM = new Random();
     private final int size = Constants.NODE_WIDTH;
-    private final IPositionProvider positionProvider;
+    private final T dataProvider;
     private Texture texture;
 
-    public NodeActor(IPositionProvider node) {
-        this.positionProvider = node;
+    public NodeActor(T node) {
+        this.dataProvider = node;
+        setTouchable(Touchable.enabled);
+        setWidth(size);
+        setHeight(size);
     }
 
-    public IPositionProvider getPositionProvider() {
-        return positionProvider;
+    public T getDataProvider() {
+        return dataProvider;
     }
 
     private Texture createTexture() {
@@ -38,6 +42,9 @@ public class NodeActor extends Actor {
         if (texture == null) {
             texture = createTexture();
         }
-        batch.draw(texture, positionProvider.getX() - size /2f, positionProvider.getY() - size /2f);
+        setX(dataProvider.getX()-size/2f);
+        setY(dataProvider.getY()-size/2f);
+        setBounds(getX(), getY(), getWidth(), getHeight());
+        batch.draw(texture, getX(), getY());
     }
 }
