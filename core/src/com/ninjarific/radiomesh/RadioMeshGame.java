@@ -90,7 +90,9 @@ public class RadioMeshGame extends ApplicationAdapter {
 
     public <T extends IPositionProvider> boolean onNodeSelected(T selectedNode) {
         if (selectedNode instanceof RadialNode) {
-            Gdx.app.debug(TAG, "tapped on node " + ((RadialNode) selectedNode).getData().getSsid());
+            RadialNode node = (RadialNode) selectedNode;
+            Gdx.app.debug(TAG, "tapped on node " + node.getData().getSsid());
+            stageManager.displayNodeData(node.getData());
             return true;
         } else {
             return false;
