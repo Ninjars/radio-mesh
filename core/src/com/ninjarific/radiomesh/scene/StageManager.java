@@ -93,4 +93,8 @@ public class StageManager<T extends IPositionProvider> {
             addNode(node);
         }
     }
+
+    public void resize(int width, int height) {
+        gameStage.getViewport().update(width, height);
+    }
 }

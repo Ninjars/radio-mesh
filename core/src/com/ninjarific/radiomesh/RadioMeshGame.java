@@ -49,6 +49,11 @@ public class RadioMeshGame extends ApplicationAdapter {
         stageManager.dispose();
     }
 
+    @Override
+    public void resize(int width, int height) {
+        stageManager.resize(width, height);
+    }
+
     public void onScanStarted() {
         // TODO: ui effect
     }
