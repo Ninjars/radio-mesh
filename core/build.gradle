@@ -7,5 +7,6 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 
 dependencies {
     implementation 'com.annimon:stream:1.1.9'
+    implementation 'com.gmail.blueboxware:libgdxpluginannotations:1.13'
 }
 
