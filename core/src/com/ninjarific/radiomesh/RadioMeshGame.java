@@ -4,13 +4,17 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.ninjarific.radiomesh.scan.ScanScreen;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
+import com.ninjarific.radiomesh.world.WorldScreen;
+import com.ninjarific.radiomesh.world.data.WorldModel;
 
 import java.util.List;
 
 public class RadioMeshGame extends Game {
     private static final String TAG = RadioMeshGame.class.getSimpleName();
-    private com.ninjarific.radiomesh.scan.ScanScreen scanScreen;
+    private ScanScreen scanScreen;
+    private WorldScreen worldScreen;
     private InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
     @Override
@@ -18,13 +22,26 @@ public class RadioMeshGame extends Game {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         Gdx.gl.glClearColor(0.24f, 0.24f, 0.24f, 1);
 
-        scanScreen = new com.ninjarific.radiomesh.scan.ScanScreen(this);
-        showScanScreen();
+        scanScreen = new ScanScreen(this);
+        worldScreen = new WorldScreen(this);
+//        showScanScreen();
+        showWorldScreen(new WorldModel());
     }
 
     private void showScanScreen() {
+        worldScreen.removeFromInput(inputMultiplexer);
+
         setScreen(scanScreen);
         scanScreen.attachToInput(inputMultiplexer);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    private void showWorldScreen(WorldModel model) {
+        scanScreen.removeFromInput(inputMultiplexer);
+
+        worldScreen.setModel(model);
+        setScreen(worldScreen);
+        worldScreen.attachToInput(inputMultiplexer);
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 

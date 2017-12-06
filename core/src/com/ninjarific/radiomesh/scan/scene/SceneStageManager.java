@@ -24,7 +24,7 @@ import com.ninjarific.radiomesh.utils.listutils.Change;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StageManager<T extends IPositionProvider> {
+public class SceneStageManager<T extends IPositionProvider> {
     private final IStageEventHandler eventHandler;
 
     private Stage uiStage;
@@ -38,7 +38,7 @@ public class StageManager<T extends IPositionProvider> {
     private OrthographicCamera gameCamera;
     private List<NodeActor> nodeActors = new ArrayList<>();
 
-    public StageManager(IStageEventHandler eventHandler) {
+    public SceneStageManager(IStageEventHandler eventHandler) {
         this.eventHandler = eventHandler;
         gameCamera = new OrthographicCamera();
         gameCamera.setToOrtho(true);

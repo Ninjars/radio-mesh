@@ -10,7 +10,7 @@ import com.ninjarific.radiomesh.scan.interaction.StageEventHandler;
 import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.scan.radialgraph.RadialNode;
-import com.ninjarific.radiomesh.scan.scene.StageManager;
+import com.ninjarific.radiomesh.scan.scene.SceneStageManager;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
 import java.util.ArrayList;
@@ -21,15 +21,15 @@ public class ScanScreen implements Screen, NodeSelectionHandler<RadialNode> {
     private static final String TAG = ScanScreen.class.getSimpleName();
 
     private final RadioMeshGame game;
-    private IStageEventHandler stageEventHandler;
+    private final IStageEventHandler stageEventHandler;
     private ScanViewEngine engine = new ScanViewEngine();
-    private StageManager<RadialNode> stageManager;
+    private final SceneStageManager<RadialNode> stageManager;
     private List<NodeData> currentNodes = Collections.emptyList();
 
     public ScanScreen(RadioMeshGame game) {
         this.game = game;
         stageEventHandler = new StageEventHandler<>(this);
-        stageManager = new StageManager<>(stageEventHandler);
+        stageManager = new SceneStageManager<>(stageEventHandler);
         stageManager.setData(engine.getNodes());
     }
 
