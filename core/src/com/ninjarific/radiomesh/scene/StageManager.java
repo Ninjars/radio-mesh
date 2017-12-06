@@ -38,7 +38,7 @@ public class StageManager<T extends IPositionProvider> {
     private OrthographicCamera gameCamera;
     private List<NodeActor> nodeActors = new ArrayList<>();
 
-    public StageManager(InputMultiplexer inputMultiplexer, IStageEventHandler eventHandler) {
+    public StageManager(IStageEventHandler eventHandler) {
         this.eventHandler = eventHandler;
         gameCamera = new OrthographicCamera();
         gameCamera.setToOrtho(true);
@@ -47,12 +47,19 @@ public class StageManager<T extends IPositionProvider> {
 
         uiStage = new Stage(new ScreenViewport());
 
-        inputMultiplexer.addProcessor(gameStage);
-        inputMultiplexer.addProcessor(uiStage);
-
         uiRootTable = new Table();
         uiRootTable.setFillParent(true); // only valid for root widgets added to stage; normally parent sets size of child
         uiStage.addActor(uiRootTable);
+    }
+
+    public void attachToInput(InputMultiplexer inputMultiplexer) {
+        inputMultiplexer.addProcessor(gameStage);
+        inputMultiplexer.addProcessor(uiStage);
+    }
+
+    public void removeFromInput(InputMultiplexer inputMultiplexer) {
+        inputMultiplexer.removeProcessor(gameStage);
+        inputMultiplexer.removeProcessor(uiStage);
     }
 
     public void draw(MutableBounds nodeBounds) {

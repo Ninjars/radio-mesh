@@ -92,7 +92,7 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
     public void onScanCompleted(List<ScanResult> scanResults) {
         Timber.d(scanResults.toString());
         List<NodeData> nodes = ListUtils.map(scanResults, scan -> new NodeData(scan.BSSID, scan.SSID, WifiManager.calculateSignalLevel(scan.level, 5), scan.frequency));
-        game.setData(nodes);
+        game.onScanResults(nodes);
     }
 
     @Override
@@ -126,7 +126,6 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE) {
-            // Do something after user returned from app settings screen, ie after attempting to have them allow permission
             scanController.beginScanning(this, SCAN_INTERVAL_MS, this);
         }
     }

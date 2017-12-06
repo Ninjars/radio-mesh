@@ -1,25 +1,24 @@
 package com.ninjarific.radiomesh.interaction;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.ninjarific.radiomesh.RadioMeshGame;
+import com.ninjarific.radiomesh.NodeSelectionHandler;
 import com.ninjarific.radiomesh.nodes.IPositionProvider;
 import com.ninjarific.radiomesh.scene.NodeActor;
 
 public class StageEventHandler<T extends IPositionProvider> implements IStageEventHandler {
 
-    private final RadioMeshGame game;
+    private final NodeSelectionHandler<T> nodeSelectionHandler;
 
-    public StageEventHandler(RadioMeshGame game) {
-        this.game = game;
+    public StageEventHandler(NodeSelectionHandler<T> nodeSelectionHandler) {
+        this.nodeSelectionHandler = nodeSelectionHandler;
     }
 
     @Override
-    public boolean onNodeTouched(Actor actor) {
+    public void onNodeTouched(Actor actor) {
         if (actor instanceof NodeActor) {
-            NodeActor nodeActor = (NodeActor) actor;
-            T data = (T) nodeActor.getDataProvider();
-            return game.onNodeSelected(data);
+            @SuppressWarnings("unchecked")
+            NodeActor<T> nodeActor = (NodeActor) actor;
+            nodeSelectionHandler.onNodeSelected(nodeActor.getDataProvider());
         }
-        return false;
     }
 }
