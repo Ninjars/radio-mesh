@@ -1,15 +1,16 @@
-package com.ninjarific.radiomesh;
+package com.ninjarific.radiomesh.scan;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.ninjarific.radiomesh.interaction.IStageEventHandler;
-import com.ninjarific.radiomesh.interaction.StageEventHandler;
-import com.ninjarific.radiomesh.nodes.MutableBounds;
-import com.ninjarific.radiomesh.radialgraph.NodeData;
-import com.ninjarific.radiomesh.radialgraph.RadialNode;
-import com.ninjarific.radiomesh.scene.StageManager;
+import com.ninjarific.radiomesh.RadioMeshGame;
+import com.ninjarific.radiomesh.scan.interaction.IStageEventHandler;
+import com.ninjarific.radiomesh.scan.interaction.StageEventHandler;
+import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
+import com.ninjarific.radiomesh.scan.radialgraph.RadialNode;
+import com.ninjarific.radiomesh.scan.scene.StageManager;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class ScanScreen implements Screen, NodeSelectionHandler<RadialNode> {
 
     private final RadioMeshGame game;
     private IStageEventHandler stageEventHandler;
-    private GameEngine gameEngine = new GameEngine();
+    private ScanViewEngine engine = new ScanViewEngine();
     private StageManager<RadialNode> stageManager;
     private List<NodeData> currentNodes = Collections.emptyList();
 
@@ -29,7 +30,7 @@ public class ScanScreen implements Screen, NodeSelectionHandler<RadialNode> {
         this.game = game;
         stageEventHandler = new StageEventHandler<>(this);
         stageManager = new StageManager<>(stageEventHandler);
-        stageManager.setData(gameEngine.getNodes());
+        stageManager.setData(engine.getNodes());
     }
 
     public void attachToInput(InputMultiplexer inputMultiplexer) {
@@ -46,7 +47,7 @@ public class ScanScreen implements Screen, NodeSelectionHandler<RadialNode> {
 
     public void setData(List<NodeData> data) {
         List<Change<NodeData>> diff = getDiff(currentNodes, data);
-        List<Change<RadialNode>> nodeChanges = gameEngine.updateNodes(diff);
+        List<Change<RadialNode>> nodeChanges = engine.updateNodes(diff);
 //        Gdx.app.log(TAG, "updateNodes " + data
 //                + "\ndiff: " + diff
 //                + "\nnodeChanges: " + nodeChanges);
@@ -92,9 +93,9 @@ public class ScanScreen implements Screen, NodeSelectionHandler<RadialNode> {
 
     @Override
     public void render(float delta) {
-        gameEngine.updateGameState(Gdx.graphics.getDeltaTime());
+        engine.updateGameState(Gdx.graphics.getDeltaTime());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        MutableBounds nodeBounds = gameEngine.getBounds();
+        MutableBounds nodeBounds = engine.getBounds();
         stageManager.draw(nodeBounds);
     }
 

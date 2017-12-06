@@ -15,7 +15,7 @@ import com.ninjarific.radiomesh.R;
 import com.ninjarific.radiomesh.RadioMeshGame;
 import com.ninjarific.radiomesh.database.room.DatabaseHelper;
 import com.ninjarific.radiomesh.database.room.entities.Connection;
-import com.ninjarific.radiomesh.radialgraph.NodeData;
+import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.scanner.IScanResultsHandler;
 import com.ninjarific.radiomesh.scanner.ScanController;
 import com.ninjarific.radiomesh.utils.listutils.ListUtils;

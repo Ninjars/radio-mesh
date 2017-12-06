@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh.radialgraph;
+package com.ninjarific.radiomesh.scan.radialgraph;
 
 public class NodeData {
     public static NodeData ROOT_NODE = new NodeData("root", "root", 0, 0);

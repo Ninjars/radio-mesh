@@ -4,13 +4,13 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.ninjarific.radiomesh.radialgraph.NodeData;
+import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 
 import java.util.List;
 
 public class RadioMeshGame extends Game {
     private static final String TAG = RadioMeshGame.class.getSimpleName();
-    private ScanScreen scanScreen;
+    private com.ninjarific.radiomesh.scan.ScanScreen scanScreen;
     private InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
     @Override
@@ -18,7 +18,7 @@ public class RadioMeshGame extends Game {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         Gdx.gl.glClearColor(0.24f, 0.24f, 0.24f, 1);
 
-        scanScreen = new ScanScreen(this);
+        scanScreen = new com.ninjarific.radiomesh.scan.ScanScreen(this);
         showScanScreen();
     }
 

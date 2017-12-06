@@ -1,6 +1,6 @@
-package com.ninjarific.radiomesh.radialgraph;
+package com.ninjarific.radiomesh.scan.radialgraph;
 
-import com.ninjarific.radiomesh.nodes.IPositionProvider;
+import com.ninjarific.radiomesh.scan.nodes.IPositionProvider;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ public class RadialNode implements IPositionProvider {
 
     private final List<RadialNode> childNodes;
     private RadialNode parentNode; // null for root node
-    private NodeData nodeData;
+    private com.ninjarific.radiomesh.scan.radialgraph.NodeData nodeData;
     private RadialPositioningModel position;
 
     /**
@@ -19,7 +19,7 @@ public class RadialNode implements IPositionProvider {
      * @param childNodes list of nodes one step down the tree from this node
      * @param position positional information
      */
-    public RadialNode(NodeData nodeData, RadialNode parentNode,
+    public RadialNode(com.ninjarific.radiomesh.scan.radialgraph.NodeData nodeData, RadialNode parentNode,
                       List<RadialNode> childNodes, RadialPositioningModel position) {
         this.nodeData = nodeData;
         this.parentNode = parentNode;
@@ -51,11 +51,11 @@ public class RadialNode implements IPositionProvider {
         childNodes.addAll(nodes);
     }
 
-    public NodeData getData() {
+    public com.ninjarific.radiomesh.scan.radialgraph.NodeData getData() {
         return nodeData;
     }
 
-    public void updateData(NodeData value) {
+    public void updateData(com.ninjarific.radiomesh.scan.radialgraph.NodeData value) {
         nodeData = value;
     }
 

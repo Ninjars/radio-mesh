@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh.scene;
+package com.ninjarific.radiomesh.scan.scene;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.ninjarific.radiomesh.Constants;
-import com.ninjarific.radiomesh.nodes.IPositionProvider;
+import com.ninjarific.radiomesh.scan.nodes.IPositionProvider;
 
 import java.util.Random;
 

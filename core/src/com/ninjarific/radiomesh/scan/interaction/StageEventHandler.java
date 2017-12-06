@@ -1,9 +1,9 @@
-package com.ninjarific.radiomesh.interaction;
+package com.ninjarific.radiomesh.scan.interaction;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.ninjarific.radiomesh.NodeSelectionHandler;
-import com.ninjarific.radiomesh.nodes.IPositionProvider;
-import com.ninjarific.radiomesh.scene.NodeActor;
+import com.ninjarific.radiomesh.scan.NodeSelectionHandler;
+import com.ninjarific.radiomesh.scan.nodes.IPositionProvider;
+import com.ninjarific.radiomesh.scan.scene.NodeActor;
 
 public class StageEventHandler<T extends IPositionProvider> implements IStageEventHandler {
 

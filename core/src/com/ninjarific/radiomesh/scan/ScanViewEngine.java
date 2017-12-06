@@ -1,29 +1,25 @@
-package com.ninjarific.radiomesh;
+package com.ninjarific.radiomesh.scan;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
-import com.ninjarific.radiomesh.nodes.MutableBounds;
-import com.ninjarific.radiomesh.radialgraph.NodeData;
-import com.ninjarific.radiomesh.radialgraph.RadialNode;
-import com.ninjarific.radiomesh.radialgraph.RadialPositioningModel;
+import com.ninjarific.radiomesh.Constants;
+import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
+import com.ninjarific.radiomesh.scan.radialgraph.RadialNode;
+import com.ninjarific.radiomesh.scan.radialgraph.RadialPositioningModel;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
-public class GameEngine {
-    private static final String TAG = GameEngine.class.getSimpleName();
-
-    private final Random random = new Random();
-
+public class ScanViewEngine {
     private final MutableBounds nodeBounds = new MutableBounds();
     private final RadialNode rootNode; // is also included in datasetNodes
     private List<RadialNode> datasetNodes = new ArrayList<>();
     private List<RadialNode> datasetUpdate;
 
-    GameEngine() {
+    ScanViewEngine() {
         rootNode = new RadialNode(NodeData.ROOT_NODE, null,
                 new ArrayList<>(), new RadialPositioningModel(0, 1, 0));
         datasetNodes.add(rootNode);
@@ -133,13 +129,6 @@ public class GameEngine {
                 node.setChildNodes(childNodes);
             }
         }
-
-//        for (IPositionProvider node : datasetNodes) {datasetNodes
-//            forceCalculator.repelNode(node, quadTree);
-//            for (IPositionProvider neighbour : node.getNeighbours()) {
-//                forceCalculator.attractNodes(node, neighbour);
-//            }
-//        }
 
         for (RadialNode node : datasetNodes) {
             node.update(timeDelta);

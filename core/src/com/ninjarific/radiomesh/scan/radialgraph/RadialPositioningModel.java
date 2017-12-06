@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh.radialgraph;
+package com.ninjarific.radiomesh.scan.radialgraph;
 
 import com.ninjarific.radiomesh.Constants;
 
