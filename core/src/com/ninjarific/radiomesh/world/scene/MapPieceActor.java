@@ -42,7 +42,7 @@ public class MapPieceActor extends Actor {
 
     private static PolygonSprite createSprite(MapPiece data) {
         Pixmap pixmap = new Pixmap((int)Math.ceil(data.width()), (int)Math.ceil(data.height()), Pixmap.Format.RGBA8888);
-        pixmap.setColor(COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), COLOR_RANDOM.nextFloat(), 1);
+        pixmap.setColor(data.getColor());
         pixmap.fill();
 
         Texture texture = new Texture(pixmap);

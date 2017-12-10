@@ -1,5 +1,6 @@
 package com.ninjarific.radiomesh.world.data;
 
+import com.badlogic.gdx.graphics.Color;
 import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 
@@ -22,7 +23,7 @@ public class WorldModel {
     public WorldModel(NodeData nodeData) {
         this.nodeData = nodeData;
         VoronoiResults voronoiResults = generateVoronoi(getSeed(), new MutableBounds(0, 0, WORLD_SIZE, WORLD_SIZE));
-        map = createMapPieces(voronoiResults);
+        map = createMapPieces(getSeed(), voronoiResults);
         RectD clippingBounds = voronoiResults.clippingBounds;
         bounds = new MutableBounds(clippingBounds.min.x, clippingBounds.min.y, clippingBounds.max.x, clippingBounds.max.y);
     }
@@ -45,11 +46,21 @@ public class WorldModel {
         return performLloydRelaxation(voronoiGraph, voronoiGraph.clippingBounds);
     }
 
-    private static List<MapPiece> createMapPieces(VoronoiResults voronoiResults) {
+    private static List<MapPiece> createMapPieces(long seed, VoronoiResults voronoiResults) {
         PointD[][] regions = voronoiResults.voronoiRegions();
         List<MapPiece> map = new ArrayList<>(regions.length);
+        Random random = new Random(seed);
+        float baseR = random.nextFloat() * 0.3f + 0.1f;
+        float baseG = random.nextFloat() * 0.3f + 0.1f;
+        float baseB = random.nextFloat() * 0.3f + 0.1f;
         for (PointD[] region : regions) {
-            map.add(new MapPiece(region));
+            float saturation = random.nextFloat() * 0.3f;
+            Color color = new Color(
+                    baseR + saturation + 0.1f * random.nextFloat(),
+                    baseG + saturation + 0.1f * random.nextFloat(),
+                    baseB + saturation + 0.1f * random.nextFloat(),
+                    1);
+            map.add(new MapPiece(region, color));
         }
         return map;
     }

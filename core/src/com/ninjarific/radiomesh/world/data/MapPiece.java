@@ -1,10 +1,13 @@
 package com.ninjarific.radiomesh.world.data;
 
+import com.badlogic.gdx.graphics.Color;
+
 import org.kynosarges.tektosyne.geometry.PointD;
 
 public class MapPiece {
 
     private final PointD[] vertexes;
+    private final Color color;
     private final float width;
     private final float height;
     private final float x;
@@ -12,8 +15,9 @@ public class MapPiece {
     private final float centerX;
     private final float centerY;
 
-    public MapPiece(PointD[] region) {
+    public MapPiece(PointD[] region, Color color) {
         vertexes = region;
+        this.color = color;
 
         float minX = Float.MAX_VALUE;
         float minY = Float.MAX_VALUE;
@@ -72,5 +76,9 @@ public class MapPiece {
 
     public float getCenterY() {
         return centerY;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }
