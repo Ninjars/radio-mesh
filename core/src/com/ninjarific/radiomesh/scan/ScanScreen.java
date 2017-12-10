@@ -78,7 +78,7 @@ public class ScanScreen implements Screen, NodeSelectionHandler<RadialNode> {
     @Override
     public void onNodeSelected(RadialNode selectedNode) {
         Gdx.app.debug(TAG, "tapped on node " + selectedNode.getData().getSsid());
-        stageManager.displayNodeData(selectedNode.getData());
+        game.onNodeSelected(selectedNode.getData());
     }
 
     @Override

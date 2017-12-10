@@ -24,8 +24,7 @@ public class RadioMeshGame extends Game {
 
         scanScreen = new ScanScreen(this);
         worldScreen = new WorldScreen(this);
-//        showScanScreen();
-        showWorldScreen(new WorldModel());
+        showScanScreen();
     }
 
     private void showScanScreen() {
@@ -71,5 +70,9 @@ public class RadioMeshGame extends Game {
         if (scanScreen != null) {
             scanScreen.onScanStarted();
         }
+    }
+
+    public void onNodeSelected(NodeData data) {
+        showWorldScreen(new WorldModel(data));
     }
 }

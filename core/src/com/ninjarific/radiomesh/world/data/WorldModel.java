@@ -1,6 +1,7 @@
 package com.ninjarific.radiomesh.world.data;
 
 import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 
 import org.kynosarges.tektosyne.geometry.PointD;
 import org.kynosarges.tektosyne.geometry.RectD;
@@ -16,8 +17,10 @@ public class WorldModel {
     private static final int POINT_COUNT = 500;
     private final MutableBounds bounds;
     private final List<MapPiece> map;
+    private final NodeData nodeData;
 
-    public WorldModel() {
+    public WorldModel(NodeData nodeData) {
+        this.nodeData = nodeData;
         VoronoiResults voronoiResults = generateVoronoi(getSeed(), new MutableBounds(0, 0, WORLD_SIZE, WORLD_SIZE));
         map = createMapPieces(voronoiResults);
         RectD clippingBounds = voronoiResults.clippingBounds;
@@ -25,7 +28,7 @@ public class WorldModel {
     }
 
     private long getSeed() {
-        return 1;
+        return nodeData.getSeed();
     }
 
     private static VoronoiResults generateVoronoi(long seed, MutableBounds bounds) {

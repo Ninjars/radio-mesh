@@ -37,4 +37,8 @@ public class NodeData {
         NodeData other = (NodeData) o;
         return bssid.equals(other.bssid) && ssid.equals(other.ssid) && frequency == other.frequency;
     }
+
+    public long getSeed() {
+        return bssid.hashCode() * 5 + ssid.hashCode() * 3;
+    }
 }
