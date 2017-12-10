@@ -2,12 +2,14 @@ package com.ninjarific.radiomesh.world.data;
 
 import com.badlogic.gdx.graphics.Color;
 import com.ninjarific.radiomesh.coordinates.Bounds;
+import com.ninjarific.radiomesh.coordinates.Coordinate;
 import com.ninjarific.radiomesh.coordinates.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 
 import org.kynosarges.tektosyne.geometry.PointD;
 import org.kynosarges.tektosyne.geometry.RectD;
 import org.kynosarges.tektosyne.geometry.Voronoi;
+import org.kynosarges.tektosyne.geometry.VoronoiEdge;
 import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
 import java.util.ArrayList;
@@ -21,12 +23,102 @@ public class WorldModel {
     private final List<MapPiece> map;
     private final NodeData nodeData;
 
+    private final List<Center> centers;
+    private final List<Edge> edges;
+    private final List<Corner> corners;
+
     public WorldModel(NodeData nodeData) {
         this.nodeData = nodeData;
         VoronoiResults voronoiResults = generateVoronoi(getSeed(), new MutableBounds(0, 0, WORLD_SIZE, WORLD_SIZE));
-        map = createMapPieces(getSeed(), voronoiResults);
+
+        PointD[] centerPoints = voronoiResults.generatorSites;
+        centers = new ArrayList<>(centerPoints.length);
+        for (int i = 0; i < centerPoints.length; i++) {
+            PointD position = centerPoints[i];
+            Center center = new Center(i, new Coordinate(position.x, position.y));
+            centers.add(center);
+        }
+
+        edges = new ArrayList<>();
+        corners = new ArrayList<>();
+
+        PointD[][] regions = voronoiResults.voronoiRegions();
+        for (int i = 0; i < regions.length; i++) {
+            PointD[] region = regions[i];
+            for (int v = 0; v < region.length; v++) {
+                PointD vertex1 = region[v];
+                PointD vertex2 = v+1 == region.length ? region[0] : region[v+1];
+                Center centerA = centers.get(i);
+                Center centerB = lookupOtherCenter(voronoiResults, centers, centerA, vertex1, vertex2);
+                edges.add(makeEdge(edges.size(), corners, vertex1, vertex2, centers.get(i), centerB));
+            }
+        }
+
+        map = createMapPieces(getSeed(), centers);
         RectD clippingBounds = voronoiResults.clippingBounds;
         bounds = new Bounds(clippingBounds.min.x, clippingBounds.min.y, clippingBounds.max.x, clippingBounds.max.y);
+    }
+
+    private static Center lookupOtherCenter(VoronoiResults results, List<Center> centers, Center centerA, PointD vertex1, PointD vertex2) {
+        for (VoronoiEdge edge : results.voronoiEdges) {
+            PointD va = results.voronoiVertices[edge.vertex1];
+            PointD vb = results.voronoiVertices[edge.vertex2];
+            if ((va == vertex1 && vb == vertex2) || (vb == vertex1 && va == vertex2)) {
+                // we have found an edge which matches the edge we're searching on
+                PointD site1 = results.generatorSites[edge.site1];
+                PointD site2 = results.generatorSites[edge.site2];
+                if (doesPositionMatch(site1, centerA.position)) {
+                    return centers.get(edge.site2);
+                } else if (doesPositionMatch(site2, centerA.position)) {
+                    return centers.get(edge.site1);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean doesPositionMatch(PointD point, Coordinate coordinate) {
+        return Double.compare(point.x, coordinate.x) == 0 && Double.compare(point.y, coordinate.y) == 0;
+    }
+
+    private static Edge makeEdge(int index, List<Corner> corners, PointD vertex1, PointD vertex2, Center a, Center b) {
+        Corner cornerA = makeCorner(corners, vertex1);
+        Corner cornerB = makeCorner(corners, vertex2);
+
+        Edge edge = new Edge(index, a, b, cornerA, cornerB);
+
+        // connect centers and corners
+        edge.v0.addEdge(edge);
+        edge.v1.addEdge(edge);
+
+        // connect centers
+        if (edge.d0 != null && edge.d1 != null) {
+            edge.d0.addNeighbour(edge.d1);
+            edge.d1.addNeighbour(edge.d0);
+        }
+
+        // connect corners
+        edge.v0.addAdjacent(edge.v1);
+        edge.v1.addAdjacent(edge.v0);
+
+        // corners reference centers
+        edge.v0.addCenter(edge.d0);
+        edge.v0.addCenter(edge.d1);
+        edge.v1.addCenter(edge.d0);
+        edge.v1.addCenter(edge.d1);
+
+        return edge;
+    }
+
+    private static Corner makeCorner(List<Corner> corners, PointD vertex) {
+        Corner corner = new Corner(corners.size(), new Coordinate(vertex.x, vertex.y));
+        int existingIndex = corners.indexOf(corner);
+        if (existingIndex >= 0) {
+            return corners.get(existingIndex);
+        } else {
+            corners.add(corner);
+            return corner;
+        }
     }
 
     private long getSeed() {
@@ -47,21 +139,20 @@ public class WorldModel {
         return performLloydRelaxation(voronoiGraph, voronoiGraph.clippingBounds);
     }
 
-    private static List<MapPiece> createMapPieces(long seed, VoronoiResults voronoiResults) {
-        PointD[][] regions = voronoiResults.voronoiRegions();
-        List<MapPiece> map = new ArrayList<>(regions.length);
+    private static List<MapPiece> createMapPieces(long seed, List<Center> centers) {
+        List<MapPiece> map = new ArrayList<>(centers.size());
         Random random = new Random(seed);
         float baseR = random.nextFloat() * 0.3f + 0.1f;
         float baseG = random.nextFloat() * 0.3f + 0.1f;
         float baseB = random.nextFloat() * 0.3f + 0.1f;
-        for (PointD[] region : regions) {
+        for (Center center : centers) {
             float saturation = random.nextFloat() * 0.3f;
             Color color = new Color(
                     baseR + saturation + 0.1f * random.nextFloat(),
                     baseG + saturation + 0.1f * random.nextFloat(),
                     baseB + saturation + 0.1f * random.nextFloat(),
                     1);
-            map.add(new MapPiece(region, color));
+            map.add(new MapPiece(center, color));
         }
         return map;
     }

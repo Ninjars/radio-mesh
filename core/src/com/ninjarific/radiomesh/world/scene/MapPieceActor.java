@@ -11,10 +11,10 @@ import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.ShortArray;
+import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.MapPiece;
 
-import org.kynosarges.tektosyne.geometry.PointD;
-
+import java.util.List;
 import java.util.Random;
 
 // TODO: currently this is expecting a separate actor for each map piece.  This may be very inefficient to render, so consider alternative strategies
@@ -48,11 +48,11 @@ public class MapPieceActor extends Actor {
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
 
-        PointD[] points = data.getVertexes();
-        float[] vertices = new float[points.length * 2];
-        for (int i = 0; i < points.length; i++) {
-            vertices[i*2] = (float) points[i].x;
-            vertices[i*2 + 1] = (float) points[i].y;
+        List<Corner> corners = data.getVertexes();
+        float[] vertices = new float[corners.size() * 2];
+        for (int i = 0; i < corners.size(); i++) {
+            vertices[i*2] = (float) corners.get(i).position.x;
+            vertices[i*2 + 1] = (float) corners.get(i).position.y;
         }
         ShortArray triangles = new EarClippingTriangulator().computeTriangles(vertices);
 
