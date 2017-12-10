@@ -65,13 +65,14 @@ public class WorldStageManager {
         double zoom = Math.max(
                 bounds.getWidth() / gameCamera.viewportWidth,
                 bounds.getHeight() / gameCamera.viewportHeight);
-
         float camX = (float) (bounds.left + bounds.getWidth() / 2f);
         float camY = (float) (bounds.top + bounds.getHeight() / 2f);
 
-        spriteBatch.setProjectionMatrix(gameCamera.combined);
         gameCamera.zoom = (float) zoom;
         gameCamera.position.set(camX, camY, 0);
+
+        spriteBatch.setProjectionMatrix(gameCamera.combined);
+
         gameStage.draw();
         uiStage.draw();
     }
