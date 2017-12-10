@@ -52,7 +52,7 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
         config.useAccelerometer = false;
         config.useCompass = false;
         config.useGyroscope = false;
-        config.useImmersiveMode = true;
+        config.useImmersiveMode = false;
         config.useRotationVectorSensor = false;
         game = new RadioMeshGame();
         View gameView = initializeForView(game, config);
