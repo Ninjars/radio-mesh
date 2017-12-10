@@ -16,8 +16,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gmail.blueboxware.libgdxplugin.annotations.GDXAssets;
 import com.ninjarific.radiomesh.scan.interaction.IStageEventHandler;
-import com.ninjarific.radiomesh.scan.nodes.IPositionProvider;
-import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.scan.radialgraph.IPositionProvider;
+import com.ninjarific.radiomesh.coordinates.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.utils.listutils.Change;
 

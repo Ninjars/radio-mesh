@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh.scan.nodes;
+package com.ninjarific.radiomesh.coordinates;
 
 public class Coordinate {
     public final double x;

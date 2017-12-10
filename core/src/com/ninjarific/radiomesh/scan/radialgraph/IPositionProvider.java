@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh.scan.nodes;
+package com.ninjarific.radiomesh.scan.radialgraph;
 
 public interface IPositionProvider {
     float getX();

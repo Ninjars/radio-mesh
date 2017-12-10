@@ -1,7 +1,5 @@
 package com.ninjarific.radiomesh.scan.radialgraph;
 
-import com.ninjarific.radiomesh.scan.nodes.IPositionProvider;
-
 import java.util.List;
 
 public class RadialNode implements IPositionProvider {

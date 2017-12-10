@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gmail.blueboxware.libgdxplugin.annotations.GDXAssets;
-import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.coordinates.Bounds;
 import com.ninjarific.radiomesh.world.data.MapPiece;
 import com.ninjarific.radiomesh.world.interaction.IWorldEventHandler;
 
@@ -61,7 +61,7 @@ public class WorldStageManager {
         inputMultiplexer.removeProcessor(uiStage);
     }
 
-    public void draw(MutableBounds bounds) {
+    public void draw(Bounds bounds) {
         double zoom = Math.max(
                 bounds.getWidth() / gameCamera.viewportWidth,
                 bounds.getHeight() / gameCamera.viewportHeight);

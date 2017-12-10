@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.ninjarific.radiomesh.RadioMeshGame;
 import com.ninjarific.radiomesh.scan.interaction.IStageEventHandler;
 import com.ninjarific.radiomesh.scan.interaction.StageEventHandler;
-import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.coordinates.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.scan.radialgraph.RadialNode;
 import com.ninjarific.radiomesh.scan.scene.SceneStageManager;

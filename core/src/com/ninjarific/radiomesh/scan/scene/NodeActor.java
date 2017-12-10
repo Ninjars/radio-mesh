@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.ninjarific.radiomesh.Constants;
-import com.ninjarific.radiomesh.scan.nodes.IPositionProvider;
+import com.ninjarific.radiomesh.scan.radialgraph.IPositionProvider;
 
 import java.util.Random;
 

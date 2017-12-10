@@ -1,7 +1,8 @@
 package com.ninjarific.radiomesh.world.data;
 
 import com.badlogic.gdx.graphics.Color;
-import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.coordinates.Bounds;
+import com.ninjarific.radiomesh.coordinates.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 
 import org.kynosarges.tektosyne.geometry.PointD;
@@ -16,7 +17,7 @@ import java.util.Random;
 public class WorldModel {
     private static final int WORLD_SIZE = 100;
     private static final int POINT_COUNT = 500;
-    private final MutableBounds bounds;
+    private final Bounds bounds;
     private final List<MapPiece> map;
     private final NodeData nodeData;
 
@@ -25,7 +26,7 @@ public class WorldModel {
         VoronoiResults voronoiResults = generateVoronoi(getSeed(), new MutableBounds(0, 0, WORLD_SIZE, WORLD_SIZE));
         map = createMapPieces(getSeed(), voronoiResults);
         RectD clippingBounds = voronoiResults.clippingBounds;
-        bounds = new MutableBounds(clippingBounds.min.x, clippingBounds.min.y, clippingBounds.max.x, clippingBounds.max.y);
+        bounds = new Bounds(clippingBounds.min.x, clippingBounds.min.y, clippingBounds.max.x, clippingBounds.max.y);
     }
 
     private long getSeed() {
@@ -87,7 +88,7 @@ public class WorldModel {
     }
 
 
-    public MutableBounds getBounds() {
+    public Bounds getBounds() {
         return bounds;
     }
 }

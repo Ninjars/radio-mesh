@@ -3,7 +3,7 @@ package com.ninjarific.radiomesh.scan;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.ninjarific.radiomesh.Constants;
-import com.ninjarific.radiomesh.scan.nodes.MutableBounds;
+import com.ninjarific.radiomesh.coordinates.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.scan.radialgraph.RadialNode;
 import com.ninjarific.radiomesh.scan.radialgraph.RadialPositioningModel;
