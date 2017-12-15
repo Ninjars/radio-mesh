@@ -8,12 +8,12 @@ import java.util.Objects;
 
 public class Corner {
     public final int index;
-    public final Coordinate position;
+    public Coordinate position;
     private final List<Center> touches = new ArrayList<>();
     private final List<Corner> adjacent = new ArrayList<>();
     private final List<Edge> protrudes = new ArrayList<>();
 
-    public boolean isWorldBorder;
+    private boolean isWorldBorder;
 
     public Corner(int index, Coordinate position) {
         this.index = index;
@@ -67,5 +67,9 @@ public class Corner {
     @Override
     public int hashCode() {
         return Objects.hash(position);
+    }
+
+    public void setPosition(Coordinate position) {
+        this.position = position;
     }
 }

@@ -42,6 +42,9 @@ public class WorldModel {
         edges = new ArrayList<>();
         corners = new ArrayList<>();
 
+        RectD clippingBoundRect = voronoiResults.clippingBounds;
+        bounds = new Bounds(clippingBoundRect.min.x, clippingBoundRect.min.y, clippingBoundRect.max.x, clippingBoundRect.max.y);
+
         PointD[][] regions = voronoiResults.voronoiRegions();
         for (int i = 0; i < regions.length; i++) {
             PointD[] region = regions[i];
@@ -50,13 +53,29 @@ public class WorldModel {
                 PointD vertex2 = v+1 == region.length ? region[0] : region[v+1];
                 Center centerA = centers.get(i);
                 Center centerB = lookupOtherCenter(voronoiResults, centers, centerA, vertex1, vertex2);
-                edges.add(makeEdge(edges.size(), corners, vertex1, vertex2, centers.get(i), centerB));
+                edges.add(makeEdge(bounds, edges.size(), corners, vertex1, vertex2, centers.get(i), centerB));
             }
         }
 
+        improveCorners();
+
         map = createMapPieces(getSeed(), centers);
-        RectD clippingBounds = voronoiResults.clippingBounds;
-        bounds = new Bounds(clippingBounds.min.x, clippingBounds.min.y, clippingBounds.max.x, clippingBounds.max.y);
+    }
+
+    private void improveCorners() {
+        for (Corner corner : corners) {
+            if (corner.isWorldBorder()) {
+                continue;
+            }
+            double x = 0, y = 0;
+            for (Center center : corner.getTouches()) {
+                x += center.position.x;
+                y += center.position.y;
+            }
+            x /= corner.getTouches().size();
+            y /= corner.getTouches().size();
+            corner.setPosition(new Coordinate(x, y));
+        }
     }
 
     private static Center lookupOtherCenter(VoronoiResults results, List<Center> centers, Center centerA, PointD vertex1, PointD vertex2) {
@@ -81,9 +100,9 @@ public class WorldModel {
         return Double.compare(point.x, coordinate.x) == 0 && Double.compare(point.y, coordinate.y) == 0;
     }
 
-    private static Edge makeEdge(int index, List<Corner> corners, PointD vertex1, PointD vertex2, Center a, Center b) {
-        Corner cornerA = makeCorner(corners, vertex1);
-        Corner cornerB = makeCorner(corners, vertex2);
+    private static Edge makeEdge(Bounds bounds, int index, List<Corner> corners, PointD vertex1, PointD vertex2, Center a, Center b) {
+        Corner cornerA = makeCorner(bounds, corners, vertex1);
+        Corner cornerB = makeCorner(bounds, corners, vertex2);
 
         Edge edge = new Edge(index, a, b, cornerA, cornerB);
 
@@ -110,12 +129,16 @@ public class WorldModel {
         return edge;
     }
 
-    private static Corner makeCorner(List<Corner> corners, PointD vertex) {
+    private static Corner makeCorner(Bounds bounds, List<Corner> corners, PointD vertex) {
         Corner corner = new Corner(corners.size(), new Coordinate(vertex.x, vertex.y));
         int existingIndex = corners.indexOf(corner);
         if (existingIndex >= 0) {
             return corners.get(existingIndex);
         } else {
+            corner.setWorldBorder(vertex.x == bounds.left
+                    || vertex.x == bounds.right
+                    || vertex.y == bounds.top
+                    || vertex.y == bounds.bottom);
             corners.add(corner);
             return corner;
         }
