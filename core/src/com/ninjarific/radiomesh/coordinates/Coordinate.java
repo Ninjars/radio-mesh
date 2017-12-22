@@ -5,6 +5,7 @@ import java.util.Objects;
 public class Coordinate {
     public final double x;
     public final double y;
+    private double length = -1;
 
     public Coordinate(double x, double y) {
         this.x = x;
@@ -27,5 +28,12 @@ public class Coordinate {
     @Override
     public int hashCode() {
         return Objects.hash(x, y);
+    }
+
+    public double length() {
+        if (length < 0) {
+            length = Math.sqrt(x * x + y * y);
+        }
+        return length;
     }
 }
