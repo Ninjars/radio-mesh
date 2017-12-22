@@ -9,6 +9,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.ninjarific.radiomesh.scan.ScanScreen;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.world.WorldScreen;
+import com.ninjarific.radiomesh.world.data.WorldGenerator;
 import com.ninjarific.radiomesh.world.data.WorldModel;
 
 import java.util.List;
@@ -77,7 +78,7 @@ public class RadioMeshGame extends Game implements InputProcessor {
     }
 
     public void onNodeSelected(NodeData data) {
-        showWorldScreen(new WorldModel(data));
+        showWorldScreen(WorldGenerator.generateWorld(data));
     }
 
     @Override
