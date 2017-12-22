@@ -5,7 +5,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.ninjarific.radiomesh.RadioMeshGame;
-import com.ninjarific.radiomesh.world.data.WorldModel;
+import com.ninjarific.radiomesh.world.worldgenerator.WorldModel;
 import com.ninjarific.radiomesh.world.interaction.IWorldEventHandler;
 import com.ninjarific.radiomesh.world.interaction.WorldEventHandler;
 import com.ninjarific.radiomesh.world.scene.WorldStageManager;

@@ -17,6 +17,7 @@ public class Center {
     private final List<Edge> borders = new ArrayList<>();
     private final List<Corner> corners = new ArrayList<>();
     private final Comparator<Corner> cornerComparator;
+    private MapProperties mapProperties;
 
     public Center(int index, Coordinate position) {
         this.index = index;
@@ -63,6 +64,14 @@ public class Center {
             corners.add(corner);
             Collections.sort(corners, cornerComparator);
         }
+    }
+
+    public MapProperties getMapProperties() {
+        return mapProperties;
+    }
+
+    public void setMapProperties(MapProperties mapProperties) {
+        this.mapProperties = mapProperties;
     }
 
     private static class CornerComparator implements Comparator<Corner> {

@@ -13,6 +13,7 @@ public class Corner {
     private final List<Corner> adjacent = new ArrayList<>();
     private final List<Edge> protrudes = new ArrayList<>();
 
+    private MapProperties mapProperties;
     private boolean isWorldBorder;
 
     public Corner(int index, Coordinate position) {
@@ -71,5 +72,13 @@ public class Corner {
 
     public void setPosition(Coordinate position) {
         this.position = position;
+    }
+
+    public void setMapProperties(MapProperties properties) {
+        this.mapProperties = properties;
+    }
+
+    public MapProperties getMapProperties() {
+        return mapProperties;
     }
 }

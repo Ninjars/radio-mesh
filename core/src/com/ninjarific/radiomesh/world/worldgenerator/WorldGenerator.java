@@ -1,10 +1,15 @@
-package com.ninjarific.radiomesh.world.data;
+package com.ninjarific.radiomesh.world.worldgenerator;
 
 import com.badlogic.gdx.graphics.Color;
 import com.ninjarific.radiomesh.coordinates.Bounds;
 import com.ninjarific.radiomesh.coordinates.Coordinate;
 import com.ninjarific.radiomesh.coordinates.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
+import com.ninjarific.radiomesh.world.data.Center;
+import com.ninjarific.radiomesh.world.data.Corner;
+import com.ninjarific.radiomesh.world.data.Edge;
+import com.ninjarific.radiomesh.world.data.MapPiece;
+import com.ninjarific.radiomesh.world.data.MapProperties;
 
 import org.kynosarges.tektosyne.geometry.PointD;
 import org.kynosarges.tektosyne.geometry.RectD;
@@ -19,6 +24,7 @@ import java.util.Random;
 public class WorldGenerator {
     private static final int WORLD_SIZE = 100;
     private static final int POINT_COUNT = 500;
+    private static final double LAKE_THRESHOLD = 0.3;
 
     public static WorldModel generateWorld(NodeData nodeData) {
         final long seed = nodeData.getSeed();
@@ -52,23 +58,108 @@ public class WorldGenerator {
 
         improveCorners(corners);
 
-        List<MapPiece> map = createMapPieces(seed, centers);
+        IslandShape shape = new RadialIslandShape(seed);
+        for (Corner corner : corners) {
+            MapProperties properties = new MapProperties();
+            properties.setIsBorder(corner.isWorldBorder());
+            properties.setIsWater(!isInsideShape(shape, corner.position) || corner.isWorldBorder());
+            properties.setIsOcean(corner.isWorldBorder());
+            corner.setMapProperties(properties);
+        }
+
+        List<Center> borderCenters = new ArrayList<>();
+        for (Center center : centers) {
+            MapProperties centerProperties = new MapProperties();
+            int waterCornerCount = 0;
+            for (Corner corner : center.getCorners()) {
+                if (corner.isWorldBorder()) {
+                    centerProperties.setIsBorder(true);
+                    centerProperties.setIsOcean(true);
+                    borderCenters.add(center);
+                }
+                if (corner.getMapProperties().isWater()) {
+                    waterCornerCount++;
+                }
+            }
+            boolean water = centerProperties.isOcean()
+                    || waterCornerCount >= center.getCorners().size() * LAKE_THRESHOLD;
+            centerProperties.setIsWater(water);
+            center.setMapProperties(centerProperties);
+        }
+
+        floodFillCenterOceanProperty(borderCenters);
+        markCenterOceanProperties(centers);
+        markCornerOceanProperties(corners);
+
+        List<MapPiece> map = createMapPieces(centers);
         return new WorldModel(map, bounds, centers, corners, edges);
     }
 
-    private static List<MapPiece> createMapPieces(long seed, List<Center> centers) {
-        List<MapPiece> map = new ArrayList<>(centers.size());
-        Random random = new Random(seed);
-        float baseR = random.nextFloat() * 0.3f + 0.1f;
-        float baseG = random.nextFloat() * 0.3f + 0.1f;
-        float baseB = random.nextFloat() * 0.3f + 0.1f;
+    private static boolean isInsideShape(IslandShape shape, Coordinate coordinate) {
+        return shape.isInside(new Coordinate(
+                2 * (coordinate.x / (double) WORLD_SIZE - 0.5),
+                2 * (coordinate.y / (double) WORLD_SIZE - 0.5)));
+    }
+
+    private static void floodFillCenterOceanProperty(List<Center> oceanBoarders) {
+        int i = 0;
+        while (i < oceanBoarders.size()) {
+            Center c = oceanBoarders.get(i);
+            for (Center other : c.getNeighbours()) {
+                MapProperties properties = other.getMapProperties();
+                if (properties.isWater() && !properties.isOcean()) {
+                    properties.setIsOcean(true);
+                    oceanBoarders.add(other);
+                }
+            }
+            i++;
+        }
+    }
+
+    private static void markCenterOceanProperties(List<Center> centers) {
         for (Center center : centers) {
-            float saturation = random.nextFloat() * 0.3f;
-            Color color = new Color(
-                    baseR + saturation + 0.1f * random.nextFloat(),
-                    baseG + saturation + 0.1f * random.nextFloat(),
-                    baseB + saturation + 0.1f * random.nextFloat(),
-                    1);
+            int oceans = 0;
+            int lands = 0;
+            for (Center c : center.getNeighbours()) {
+                MapProperties properties = c.getMapProperties();
+                if (properties.isOcean()) oceans++;
+                if (!properties.isWater()) lands++;
+                if (oceans > 0 && lands > 0) {
+                    break;
+                }
+            }
+            center.getMapProperties().setIsCoast(oceans > 0 && lands > 0);
+        }
+    }
+
+    private static void markCornerOceanProperties(List<Corner> corners) {
+        for (Corner corner : corners) {
+            int oceans = 0;
+            int lands = 0;
+            for (Center c : corner.getTouches()) {
+                MapProperties properties = c.getMapProperties();
+                if (properties.isOcean()) oceans++;
+                if (!properties.isWater()) lands++;
+                if (oceans > 0 && lands > 0) {
+                    break;
+                }
+            }
+            MapProperties properties = corner.getMapProperties();
+            properties.setIsCoast(oceans > 0 && lands > 0);
+            properties.setIsOcean(oceans == corner.getTouches().size());
+            properties.setIsWater(corner.isWorldBorder()
+                    || ((lands != corner.getTouches().size() && ! properties.isCoast())));
+        }
+    }
+
+    private static List<MapPiece> createMapPieces(List<Center> centers) {
+        List<MapPiece> map = new ArrayList<>(centers.size());
+        for (Center center : centers) {
+            MapProperties properties = center.getMapProperties();
+            Color color = properties.isCoast() ? Color.YELLOW
+                    : properties.isOcean() ? Color.BLUE
+                    : properties.isWater() ? Color.CYAN
+                    : Color.GREEN;
             map.add(new MapPiece(center, color));
         }
         return map;
