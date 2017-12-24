@@ -9,6 +9,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.ninjarific.radiomesh.scan.ScanScreen;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.world.WorldScreen;
+import com.ninjarific.radiomesh.world.logger.LoadingLogger;
 import com.ninjarific.radiomesh.world.worldgenerator.WorldGenerator;
 import com.ninjarific.radiomesh.world.worldgenerator.WorldModel;
 
@@ -86,7 +87,8 @@ public class RadioMeshGame extends Game implements InputProcessor {
     }
 
     public void onNodeSelected(NodeData data) {
-        showWorldScreen(WorldGenerator.generateWorld(data));
+        LoadingLogger loadingLogger = new LoadingLogger(s -> Gdx.app.debug("WorldGenerator", s));
+        showWorldScreen(WorldGenerator.generateWorld(data, loadingLogger));
     }
 
     @Override

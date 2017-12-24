@@ -10,6 +10,7 @@ import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.Edge;
 import com.ninjarific.radiomesh.world.data.MapPiece;
 import com.ninjarific.radiomesh.world.data.MapProperties;
+import com.ninjarific.radiomesh.world.logger.LoadingLogger;
 
 import org.kynosarges.tektosyne.geometry.PointD;
 import org.kynosarges.tektosyne.geometry.RectD;
@@ -26,10 +27,14 @@ public class WorldGenerator {
     private static final int POINT_COUNT = 500;
     private static final double LAKE_THRESHOLD = 0.3;
 
-    public static WorldModel generateWorld(NodeData nodeData) {
+    public static WorldModel generateWorld(NodeData nodeData, LoadingLogger logger) {
+        logger.start();
         final long seed = nodeData.getSeed();
+        logger.beginningStage("voronoi graph");
         VoronoiResults voronoiResults = generateVoronoi(seed, new MutableBounds(0, 0, WORLD_SIZE, WORLD_SIZE));
+        logger.completedStage("voronoi graph");
 
+        logger.beginningStage("generate centers");
         PointD[] centerPoints = voronoiResults.generatorSites;
         List<Center> centers = new ArrayList<>(centerPoints.length);
         for (int i = 0; i < centerPoints.length; i++) {
@@ -40,6 +45,7 @@ public class WorldGenerator {
 
         List<Edge> edges = new ArrayList<>();
         List<Corner> corners = new ArrayList<>();
+        logger.completedStage("generate centers");
 
         RectD clippingBoundRect = voronoiResults.clippingBounds;
         Bounds bounds = new Bounds(clippingBoundRect.min.x, clippingBoundRect.min.y, clippingBoundRect.max.x, clippingBoundRect.max.y);
@@ -56,8 +62,11 @@ public class WorldGenerator {
             }
         }
 
+        logger.beginningStage("improve corners");
         improveCorners(corners);
+        logger.completedStage("improve corners");
 
+        logger.beginningStage("corner properties");
         IslandShape shape = new RadialIslandShape(seed);
         for (Corner corner : corners) {
             MapProperties properties = new MapProperties();
@@ -66,7 +75,9 @@ public class WorldGenerator {
             properties.setIsOcean(corner.isWorldBorder());
             corner.setMapProperties(properties);
         }
+        logger.completedStage("corner properties");
 
+        logger.beginningStage("center properties");
         List<Center> borderCenters = new ArrayList<>();
         for (Center center : centers) {
             MapProperties centerProperties = new MapProperties();
@@ -86,12 +97,24 @@ public class WorldGenerator {
             centerProperties.setIsWater(water);
             center.setMapProperties(centerProperties);
         }
+        logger.completedStage("center properties");
 
+        logger.beginningStage("ocean borders");
         floodFillCenterOceanProperty(borderCenters);
-        markCenterOceanProperties(centers);
-        markCornerOceanProperties(corners);
+        logger.completedStage("ocean borders");
 
+        logger.beginningStage("ocean centers");
+        markCenterOceanProperties(centers);
+        logger.completedStage("ocean centers");
+
+        logger.beginningStage("ocean corners");
+        markCornerOceanProperties(corners);
+        logger.completedStage("ocean corners");
+
+        logger.beginningStage("create map pieces");
         List<MapPiece> map = createMapPieces(centers);
+        logger.completedStage("create map pieces");
+        logger.end();
         return new WorldModel(map, bounds, centers, corners, edges);
     }
 
