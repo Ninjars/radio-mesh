@@ -13,6 +13,7 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.ninjarific.radiomesh.IMessageHandler;
 import com.ninjarific.radiomesh.R;
 import com.ninjarific.radiomesh.RadioMeshGame;
+import com.ninjarific.radiomesh.SystemDelegate;
 import com.ninjarific.radiomesh.database.room.DatabaseHelper;
 import com.ninjarific.radiomesh.database.room.entities.Connection;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
@@ -27,7 +28,7 @@ import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
-public class GraphicsActivity extends AndroidApplication implements IMessageHandler, IScanResultsHandler, EasyPermissions.PermissionCallbacks {
+public class GraphicsActivity extends AndroidApplication implements IMessageHandler, IScanResultsHandler, EasyPermissions.PermissionCallbacks, SystemDelegate {
     public static final String BUNDLE_GRAPH_ID = "graph_id";
     private static final int SCAN_INTERVAL_MS = 1000 * 10;
     private Disposable disposable;
@@ -54,7 +55,7 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
         config.useGyroscope = false;
         config.useImmersiveMode = false;
         config.useRotationVectorSensor = false;
-        game = new RadioMeshGame();
+        game = new RadioMeshGame(this);
         View gameView = initializeForView(game, config);
         ViewGroup container = findViewById(R.id.game_frame);
         container.addView(gameView);
@@ -128,5 +129,15 @@ public class GraphicsActivity extends AndroidApplication implements IMessageHand
         if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE) {
             scanController.beginScanning(this, SCAN_INTERVAL_MS, this);
         }
+    }
+
+    @Override
+    public void stopScanning() {
+        scanController.stopScanning();
+    }
+
+    @Override
+    public void startScanning() {
+        scanController.beginScanning(this, SCAN_INTERVAL_MS, this);
     }
 }

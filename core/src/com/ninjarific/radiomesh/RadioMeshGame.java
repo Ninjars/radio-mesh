@@ -16,9 +16,15 @@ import java.util.List;
 
 public class RadioMeshGame extends Game implements InputProcessor {
     private static final String TAG = RadioMeshGame.class.getSimpleName();
+    private final SystemDelegate systemDelegate;
     private ScanScreen scanScreen;
     private WorldScreen worldScreen;
     private InputMultiplexer inputMultiplexer = new InputMultiplexer();
+
+    public RadioMeshGame(SystemDelegate systemDelegate) {
+
+        this.systemDelegate = systemDelegate;
+    }
 
     @Override
     public void create() {
@@ -34,6 +40,7 @@ public class RadioMeshGame extends Game implements InputProcessor {
         worldScreen.removeFromInput(inputMultiplexer);
 
         setScreen(scanScreen);
+        systemDelegate.startScanning();
         scanScreen.attachToInput(inputMultiplexer);
         Gdx.input.setInputProcessor(inputMultiplexer);
         Gdx.input.setCatchBackKey(false);
@@ -44,6 +51,7 @@ public class RadioMeshGame extends Game implements InputProcessor {
 
         worldScreen.setModel(model);
         setScreen(worldScreen);
+        systemDelegate.stopScanning();
         worldScreen.attachToInput(inputMultiplexer);
         Gdx.input.setInputProcessor(inputMultiplexer);
         Gdx.input.setCatchBackKey(true);
