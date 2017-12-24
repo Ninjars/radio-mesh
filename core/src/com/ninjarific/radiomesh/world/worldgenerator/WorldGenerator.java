@@ -24,7 +24,7 @@ import java.util.Random;
 
 public class WorldGenerator {
     private static final int WORLD_SIZE = 100;
-    private static final int POINT_COUNT = 500;
+    private static final int POINT_COUNT = 8000;
     private static final double LAKE_THRESHOLD = 0.3;
 
     public static WorldModel generateWorld(NodeData nodeData, LoadingLogger logger) {
@@ -42,25 +42,39 @@ public class WorldGenerator {
             Center center = new Center(i, new Coordinate(position.x, position.y));
             centers.add(center);
         }
-
-        List<Edge> edges = new ArrayList<>();
-        List<Corner> corners = new ArrayList<>();
         logger.completedStage("generate centers");
 
         RectD clippingBoundRect = voronoiResults.clippingBounds;
         Bounds bounds = new Bounds(clippingBoundRect.min.x, clippingBoundRect.min.y, clippingBoundRect.max.x, clippingBoundRect.max.y);
 
-        PointD[][] regions = voronoiResults.voronoiRegions();
-        for (int i = 0; i < regions.length; i++) {
-            PointD[] region = regions[i];
-            for (int v = 0; v < region.length; v++) {
-                PointD vertex1 = region[v];
-                PointD vertex2 = v+1 == region.length ? region[0] : region[v+1];
-                Center centerA = centers.get(i);
-                Center centerB = lookupOtherCenter(voronoiResults, centers, centerA, vertex1, vertex2);
-                edges.add(makeEdge(bounds, edges.size(), corners, vertex1, vertex2, centers.get(i), centerB));
-            }
+        logger.beginningStage("generate corners");
+        PointD[] cornerPoints = voronoiResults.voronoiVertices;
+        List<Corner> corners = new ArrayList<>(centerPoints.length);
+        for (int i = 0; i < cornerPoints.length; i++) {
+            PointD position = cornerPoints[i];
+            Corner corner = new Corner(i, new Coordinate(position.x, position.y));
+            corner.setWorldBorder(position.x == bounds.left
+                    || position.x == bounds.right
+                    || position.y == bounds.top
+                    || position.y == bounds.bottom);
+            corners.add(corner);
         }
+        logger.completedStage("generate corners");
+
+        List<Edge> edges = new ArrayList<>();
+
+        logger.startLoop("generate regions");
+        for (int i = 0; i < voronoiResults.voronoiEdges.length; i++) {
+            logger.startLoopIteration("generate regions");
+            VoronoiEdge resultEdge = voronoiResults.voronoiEdges[i];
+            Center centerA = centers.get(resultEdge.site1);
+            Center centerB = centers.get(resultEdge.site2);
+            Corner cornerA = corners.get(resultEdge.vertex1);
+            Corner cornerB = corners.get(resultEdge.vertex2);
+            edges.add(makeEdge(edges.size(), cornerA, cornerB, centerA, centerB));
+            logger.endLoopIteration("generate regions");
+        }
+        logger.endLoop("generate regions");
 
         logger.beginningStage("improve corners");
         improveCorners(corners);
@@ -237,32 +251,7 @@ public class WorldGenerator {
         }
     }
 
-    private static Center lookupOtherCenter(VoronoiResults results, List<Center> centers, Center centerA, PointD vertex1, PointD vertex2) {
-        for (VoronoiEdge edge : results.voronoiEdges) {
-            PointD va = results.voronoiVertices[edge.vertex1];
-            PointD vb = results.voronoiVertices[edge.vertex2];
-            if ((va == vertex1 && vb == vertex2) || (vb == vertex1 && va == vertex2)) {
-                // we have found an edge which matches the edge we're searching on
-                PointD site1 = results.generatorSites[edge.site1];
-                PointD site2 = results.generatorSites[edge.site2];
-                if (doesPositionMatch(site1, centerA.position)) {
-                    return centers.get(edge.site2);
-                } else if (doesPositionMatch(site2, centerA.position)) {
-                    return centers.get(edge.site1);
-                }
-            }
-        }
-        return null;
-    }
-
-    private static boolean doesPositionMatch(PointD point, Coordinate coordinate) {
-        return Double.compare(point.x, coordinate.x) == 0 && Double.compare(point.y, coordinate.y) == 0;
-    }
-
-    private static Edge makeEdge(Bounds bounds, int index, List<Corner> corners, PointD vertex1, PointD vertex2, Center a, Center b) {
-        Corner cornerA = makeCorner(bounds, corners, vertex1);
-        Corner cornerB = makeCorner(bounds, corners, vertex2);
-
+    private static Edge makeEdge(int index, Corner cornerA, Corner cornerB, Center a, Center b) {
         Edge edge = new Edge(index, a, b, cornerA, cornerB);
 
         // connect centers and corners
@@ -286,20 +275,5 @@ public class WorldGenerator {
         edge.v1.addCenter(edge.d1);
 
         return edge;
-    }
-
-    private static Corner makeCorner(Bounds bounds, List<Corner> corners, PointD vertex) {
-        Corner corner = new Corner(corners.size(), new Coordinate(vertex.x, vertex.y));
-        int existingIndex = corners.indexOf(corner);
-        if (existingIndex >= 0) {
-            return corners.get(existingIndex);
-        } else {
-            corner.setWorldBorder(vertex.x == bounds.left
-                    || vertex.x == bounds.right
-                    || vertex.y == bounds.top
-                    || vertex.y == bounds.bottom);
-            corners.add(corner);
-            return corner;
-        }
     }
 }
