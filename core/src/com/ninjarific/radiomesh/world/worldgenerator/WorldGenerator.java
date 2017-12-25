@@ -31,32 +31,36 @@ public class WorldGenerator {
         logger.start();
         final long seed = nodeData.getSeed();
         logger.beginningStage("voronoi graph");
-        VoronoiResults voronoiResults = generateVoronoi(seed, new MutableBounds(0, 0, WORLD_SIZE, WORLD_SIZE));
+        VoronoiResults voronoiResults = generateVoronoi(seed, new Bounds(0, 0, WORLD_SIZE, WORLD_SIZE));
         logger.completedStage("voronoi graph");
+
+        RectD clippingBoundRect = voronoiResults.clippingBounds;
+        double xOffset = -clippingBoundRect.min.x;
+        double yOffset = -clippingBoundRect.min.y;
+        Bounds bounds = new Bounds(0, 0, clippingBoundRect.width(), clippingBoundRect.height());
 
         logger.beginningStage("generate centers");
         PointD[] centerPoints = voronoiResults.generatorSites;
         List<Center> centers = new ArrayList<>(centerPoints.length);
         for (int i = 0; i < centerPoints.length; i++) {
             PointD position = centerPoints[i];
-            Center center = new Center(i, new Coordinate(position.x, position.y));
+            Center center = new Center(i, new Coordinate(position.x + xOffset, position.y + yOffset));
             centers.add(center);
         }
         logger.completedStage("generate centers");
-
-        RectD clippingBoundRect = voronoiResults.clippingBounds;
-        Bounds bounds = new Bounds(clippingBoundRect.min.x, clippingBoundRect.min.y, clippingBoundRect.max.x, clippingBoundRect.max.y);
 
         logger.beginningStage("generate corners");
         PointD[] cornerPoints = voronoiResults.voronoiVertices;
         List<Corner> corners = new ArrayList<>(centerPoints.length);
         for (int i = 0; i < cornerPoints.length; i++) {
             PointD position = cornerPoints[i];
-            Corner corner = new Corner(i, new Coordinate(position.x, position.y));
-            corner.setWorldBorder(position.x == bounds.left
-                    || position.x == bounds.right
-                    || position.y == bounds.top
-                    || position.y == bounds.bottom);
+            double x = position.x + xOffset;
+            double y = position.y + yOffset;
+            Corner corner = new Corner(i, new Coordinate(x, y));
+            corner.setWorldBorder(x <= bounds.left
+                    || x >= bounds.right
+                    || y <= bounds.top
+                    || y >= bounds.bottom);
             corners.add(corner);
         }
         logger.completedStage("generate corners");
@@ -82,10 +86,11 @@ public class WorldGenerator {
 
         logger.beginningStage("corner properties");
         IslandShape shape = new RadialIslandShape(seed);
+        int maxDimension = (int) Math.ceil(Math.max(bounds.getWidth(), bounds.getHeight()));
         for (Corner corner : corners) {
             MapProperties properties = new MapProperties();
             properties.setIsBorder(corner.isWorldBorder());
-            properties.setIsWater(!isInsideShape(shape, corner.position) || corner.isWorldBorder());
+            properties.setIsWater(!isInsideShape(maxDimension, shape, corner.position) || corner.isWorldBorder());
             properties.setIsOcean(corner.isWorldBorder());
             corner.setMapProperties(properties);
         }
@@ -132,10 +137,10 @@ public class WorldGenerator {
         return new WorldModel(map, bounds, centers, corners, edges);
     }
 
-    private static boolean isInsideShape(IslandShape shape, Coordinate coordinate) {
-        return shape.isInside(new Coordinate(
-                2 * (coordinate.x / (double) WORLD_SIZE - 0.5),
-                2 * (coordinate.y / (double) WORLD_SIZE - 0.5)));
+    private static boolean isInsideShape(int maxDimension, IslandShape shape, Coordinate coordinate) {
+        return shape.isInside(
+                2 * (coordinate.x / (double) maxDimension - 0.5),
+                2 * (coordinate.y / (double) maxDimension - 0.5));
     }
 
     private static void floodFillCenterOceanProperty(List<Center> oceanBoarders) {
@@ -202,7 +207,7 @@ public class WorldGenerator {
         return map;
     }
 
-    private static VoronoiResults generateVoronoi(long seed, MutableBounds bounds) {
+    private static VoronoiResults generateVoronoi(long seed, Bounds bounds) {
         Random random = new Random(seed);
 
         PointD[] points = new PointD[POINT_COUNT];
