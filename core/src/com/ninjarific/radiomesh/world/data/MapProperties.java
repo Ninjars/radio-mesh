@@ -1,36 +1,30 @@
 package com.ninjarific.radiomesh.world.data;
 
 public class MapProperties {
-    private boolean isWater;
-    private boolean isBorder;
-    private boolean isOcean;
-    private boolean isCoast;
 
-    public boolean isWater() {
-        return isWater;
+    private Type type = Type.LAND;
+
+    public Type getType() {
+        return type;
     }
 
-    public void setIsWater(boolean water) {
-        isWater = water;
+    public void setType(Type type) {
+        this.type = type;
     }
 
-    public void setIsBorder(boolean isBorder) {
-        this.isBorder = isBorder;
-    }
-
-    public void setIsOcean(boolean isOcean) {
-        this.isOcean = isOcean;
+    public boolean isLand() {
+        return type == Type.COAST || type == Type.LAND;
     }
 
     public boolean isOcean() {
-        return isOcean;
+        return type == Type.SHALLOWS || type == Type.BORDER_OCEAN;
     }
 
-    public void setIsCoast(boolean isCoast) {
-        this.isCoast = isCoast;
-    }
-
-    public boolean isCoast() {
-        return isCoast;
+    public enum Type {
+        BORDER_OCEAN,
+        LAKE,
+        COAST,
+        SHALLOWS,
+        LAND
     }
 }

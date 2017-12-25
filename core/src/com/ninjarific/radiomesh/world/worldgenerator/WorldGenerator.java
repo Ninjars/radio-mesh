@@ -1,9 +1,9 @@
 package com.ninjarific.radiomesh.world.worldgenerator;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.ninjarific.radiomesh.coordinates.Bounds;
 import com.ninjarific.radiomesh.coordinates.Coordinate;
-import com.ninjarific.radiomesh.coordinates.MutableBounds;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.world.data.Center;
 import com.ninjarific.radiomesh.world.data.Corner;
@@ -89,9 +89,11 @@ public class WorldGenerator {
         IslandShape shape = new PerlinIslandShape(seed, maxDimension);
         for (Corner corner : corners) {
             MapProperties properties = new MapProperties();
-            properties.setIsBorder(corner.isWorldBorder());
-            properties.setIsWater(!isInsideShape(maxDimension, shape, corner.position) || corner.isWorldBorder());
-            properties.setIsOcean(corner.isWorldBorder());
+            if (corner.isWorldBorder()) {
+                properties.setType(MapProperties.Type.BORDER_OCEAN);
+            } else if (!isInsideShape(maxDimension, shape, corner.position)) {
+                properties.setType(MapProperties.Type.LAKE);
+            }
             corner.setMapProperties(properties);
         }
         logger.completedStage("corner properties");
@@ -103,17 +105,19 @@ public class WorldGenerator {
             int waterCornerCount = 0;
             for (Corner corner : center.getCorners()) {
                 if (corner.isWorldBorder()) {
-                    centerProperties.setIsBorder(true);
-                    centerProperties.setIsOcean(true);
+                    centerProperties.setType(MapProperties.Type.BORDER_OCEAN);
                     borderCenters.add(center);
+                    continue;
                 }
-                if (corner.getMapProperties().isWater()) {
+                MapProperties.Type cornerType = corner.getMapProperties().getType();
+                if (cornerType == MapProperties.Type.BORDER_OCEAN || cornerType == MapProperties.Type.LAKE) {
                     waterCornerCount++;
                 }
             }
-            boolean water = centerProperties.isOcean()
-                    || waterCornerCount >= center.getCorners().size() * LAKE_THRESHOLD;
-            centerProperties.setIsWater(water);
+            if (centerProperties.getType() != MapProperties.Type.BORDER_OCEAN
+                    && waterCornerCount >= center.getCorners().size() * LAKE_THRESHOLD) {
+                centerProperties.setType(MapProperties.Type.LAKE);
+            }
             center.setMapProperties(centerProperties);
         }
         logger.completedStage("center properties");
@@ -149,8 +153,8 @@ public class WorldGenerator {
             Center c = oceanBoarders.get(i);
             for (Center other : c.getNeighbours()) {
                 MapProperties properties = other.getMapProperties();
-                if (properties.isWater() && !properties.isOcean()) {
-                    properties.setIsOcean(true);
+                if (properties.getType() == MapProperties.Type.LAKE) {
+                    properties.setType(MapProperties.Type.BORDER_OCEAN);
                     oceanBoarders.add(other);
                 }
             }
@@ -164,13 +168,23 @@ public class WorldGenerator {
             int lands = 0;
             for (Center c : center.getNeighbours()) {
                 MapProperties properties = c.getMapProperties();
-                if (properties.isOcean()) oceans++;
-                if (!properties.isWater()) lands++;
+                if (properties.isLand()) {
+                    lands++;
+                } else if (properties.isOcean()) {
+                    oceans++;
+                }
                 if (oceans > 0 && lands > 0) {
                     break;
                 }
             }
-            center.getMapProperties().setIsCoast(oceans > 0 && lands > 0);
+            MapProperties centerProperties = center.getMapProperties();
+            if (oceans > 0 && lands > 0) {
+                if (centerProperties.getType() == MapProperties.Type.LAND) {
+                    centerProperties.setType(MapProperties.Type.COAST);
+                } else {
+                    centerProperties.setType(MapProperties.Type.SHALLOWS);
+                }
+            }
         }
     }
 
@@ -180,17 +194,24 @@ public class WorldGenerator {
             int lands = 0;
             for (Center c : corner.getTouches()) {
                 MapProperties properties = c.getMapProperties();
-                if (properties.isOcean()) oceans++;
-                if (!properties.isWater()) lands++;
+                if (properties.isLand()) {
+                    lands++;
+                } else if (properties.isOcean()) {
+                    oceans++;
+                }
                 if (oceans > 0 && lands > 0) {
                     break;
                 }
             }
+            int numberOfCenters = corner.getTouches().size();
             MapProperties properties = corner.getMapProperties();
-            properties.setIsCoast(oceans > 0 && lands > 0);
-            properties.setIsOcean(oceans == corner.getTouches().size());
-            properties.setIsWater(corner.isWorldBorder()
-                    || ((lands != corner.getTouches().size() && ! properties.isCoast())));
+            if (oceans == numberOfCenters) {
+                properties.setType(MapProperties.Type.BORDER_OCEAN);
+            } else if (oceans > 0 && lands > 0) {
+                properties.setType(MapProperties.Type.COAST);
+            } else if (lands != numberOfCenters) {
+                properties.setType(MapProperties.Type.LAKE);
+            }
         }
     }
 
@@ -198,10 +219,24 @@ public class WorldGenerator {
         List<MapPiece> map = new ArrayList<>(centers.size());
         for (Center center : centers) {
             MapProperties properties = center.getMapProperties();
-            Color color = properties.isCoast() ? Color.YELLOW
-                    : properties.isOcean() ? Color.BLUE
-                    : properties.isWater() ? Color.CYAN
-                    : Color.GREEN;
+            Color color;
+            switch (properties.getType()) {
+                case LAND:
+                    color = Color.GREEN;
+                    break;
+                case BORDER_OCEAN:
+                    color = Color.BLUE;
+                    break;
+                case COAST:
+                    color = Color.YELLOW;
+                    break;
+                case LAKE:
+                    color = Color.CYAN;
+                    break;
+                default:
+                    color = Color.PURPLE;
+                    Gdx.app.debug("WoldGenerator", "unhandled map property " + properties.getType());
+            }
             map.add(new MapPiece(center, color));
         }
         return map;
@@ -237,8 +272,6 @@ public class WorldGenerator {
         }
         return Voronoi.findAll(approxCenters, clippingRect);
     }
-
-
 
     private static void improveCorners(List<Corner> corners) {
         for (Corner corner : corners) {
