@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.ninjarific.radiomesh.coordinates.Bounds;
 import com.ninjarific.radiomesh.coordinates.Coordinate;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
+import com.ninjarific.radiomesh.world.WorldColors;
 import com.ninjarific.radiomesh.world.data.Center;
 import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.Edge;
@@ -135,7 +136,7 @@ public class WorldGenerator {
         logger.completedStage("ocean corners");
 
         logger.beginningStage("create map pieces");
-        List<MapPiece> map = createMapPieces(centers);
+        List<MapPiece> map = createMapPieces(seed, centers);
         logger.completedStage("create map pieces");
         logger.end();
         return new WorldModel(map, bounds, centers, corners, edges);
@@ -215,26 +216,30 @@ public class WorldGenerator {
         }
     }
 
-    private static List<MapPiece> createMapPieces(List<Center> centers) {
+    private static List<MapPiece> createMapPieces(long colorSeed, List<Center> centers) {
+        Random colorRandom = new Random(colorSeed);
         List<MapPiece> map = new ArrayList<>(centers.size());
         for (Center center : centers) {
             MapProperties properties = center.getMapProperties();
             Color color;
             switch (properties.getType()) {
                 case LAND:
-                    color = Color.GREEN;
+                    color = WorldColors.getLandColor(colorRandom);
                     break;
                 case BORDER_OCEAN:
-                    color = Color.BLUE;
+                    color = WorldColors.getOceanColor(colorRandom);
                     break;
                 case COAST:
-                    color = Color.YELLOW;
+                    color = WorldColors.getCoastColor(colorRandom);
+                    break;
+                case SHALLOWS:
+                    color = WorldColors.getShallowsColor(colorRandom);
                     break;
                 case LAKE:
-                    color = Color.CYAN;
+                    color = WorldColors.getLakeColor(colorRandom);
                     break;
                 default:
-                    color = Color.PURPLE;
+                    color = WorldColors.UNASSIGNED_COLOR;
                     Gdx.app.debug("WoldGenerator", "unhandled map property " + properties.getType());
             }
             map.add(new MapPiece(center, color));
