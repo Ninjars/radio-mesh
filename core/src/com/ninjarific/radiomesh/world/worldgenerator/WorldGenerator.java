@@ -85,8 +85,8 @@ public class WorldGenerator {
         logger.completedStage("improve corners");
 
         logger.beginningStage("corner properties");
-        IslandShape shape = new RadialIslandShape(seed);
         int maxDimension = (int) Math.ceil(Math.max(bounds.getWidth(), bounds.getHeight()));
+        IslandShape shape = new PerlinIslandShape(seed, maxDimension);
         for (Corner corner : corners) {
             MapProperties properties = new MapProperties();
             properties.setIsBorder(corner.isWorldBorder());
