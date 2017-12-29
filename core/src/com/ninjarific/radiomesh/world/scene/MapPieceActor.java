@@ -11,16 +11,15 @@ import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.ShortArray;
+import com.ninjarific.radiomesh.Constants;
 import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.MapPiece;
 
 import java.util.List;
-import java.util.Random;
 
 // TODO: currently this is expecting a separate actor for each map piece.  This may be very inefficient to render, so consider alternative strategies
 // TODO: suggestion may be to have a single actor to handle all map pieces, so a single PolygonSpriteBatch is used in a single pass per frame
 public class MapPieceActor extends Actor {
-    private static final Random COLOR_RANDOM = new Random();
     private final MapPiece data;
     private final PolygonSpriteBatch spriteBatch;
     private PolygonSprite sprite;
@@ -41,7 +40,7 @@ public class MapPieceActor extends Actor {
     }
 
     private static PolygonSprite createSprite(MapPiece data) {
-        Pixmap pixmap = new Pixmap((int)Math.ceil(data.width()), (int)Math.ceil(data.height()), Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap((int) Math.ceil(data.width()), (int) Math.ceil(data.height()), Pixmap.Format.RGBA8888);
         pixmap.setColor(data.getColor());
         pixmap.fill();
 
@@ -51,8 +50,8 @@ public class MapPieceActor extends Actor {
         List<Corner> corners = data.getVertexes();
         float[] vertices = new float[corners.size() * 2];
         for (int i = 0; i < corners.size(); i++) {
-            vertices[i*2] = (float) corners.get(i).position.x;
-            vertices[i*2 + 1] = (float) corners.get(i).position.y;
+            vertices[i * 2] = (float) corners.get(i).position.x;
+            vertices[i * 2 + 1] = (float) corners.get(i).position.y;
         }
         ShortArray triangles = new EarClippingTriangulator().computeTriangles(vertices);
 

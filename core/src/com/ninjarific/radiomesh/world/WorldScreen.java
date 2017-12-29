@@ -71,6 +71,6 @@ public class WorldScreen implements Screen {
 
     public void setModel(WorldModel model) {
         this.model = model;
-        stageManager.setData(model.getMap());
+        stageManager.setData(model.getMap(), model.getWind());
     }
 }

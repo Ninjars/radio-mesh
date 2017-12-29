@@ -2,6 +2,7 @@ package com.ninjarific.radiomesh.world.worldgenerator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.ninjarific.radiomesh.Constants;
 import com.ninjarific.radiomesh.coordinates.Bounds;
 import com.ninjarific.radiomesh.coordinates.Coordinate;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
@@ -11,6 +12,7 @@ import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.Edge;
 import com.ninjarific.radiomesh.world.data.MapPiece;
 import com.ninjarific.radiomesh.world.data.MapProperties;
+import com.ninjarific.radiomesh.world.data.WindData;
 import com.ninjarific.radiomesh.world.logger.LoadingLogger;
 
 import org.kynosarges.tektosyne.geometry.PointD;
@@ -25,11 +27,11 @@ import java.util.List;
 import java.util.Random;
 
 public class WorldGenerator {
+    private static final String TAG = WorldGenerator.class.getSimpleName();
     private static final int WORLD_SIZE = 100;
     private static final int POINT_COUNT = 8000;
     private static final double LAKE_THRESHOLD = 0.3;
     private static final double MOUNTAIN_SCALE_FACTOR = 1.1; // > 1 to increase the amount of maxed-out mountain tops
-    private static final boolean DEBUG_HEIGHTMAP = false;
 
     public static WorldModel generateWorld(NodeData nodeData, LoadingLogger logger) {
         logger.start();
@@ -154,11 +156,42 @@ public class WorldGenerator {
         assignCenterElevations(centers);
         logger.completedStage("center elevations");
 
+        logger.beginningStage("generate airflow");
+        generateAirflow(seed, centers);
+        logger.completedStage("generate airflow");
+
         logger.beginningStage("create map pieces");
         List<MapPiece> map = createMapPieces(seed, centers);
         logger.completedStage("create map pieces");
+
+        List<WindData> wind;
+        if (Constants.DEBUG_SHOW_WIND) {
+            logger.beginningStage("create wind data");
+            wind = createWindData(centers);
+            logger.completedStage("create wind data");
+        } else {
+            wind = Collections.emptyList();
+        }
         logger.end();
-        return new WorldModel(map, bounds, centers, corners, edges);
+        return new WorldModel(map, wind, bounds, centers, corners, edges);
+    }
+
+    private static List<WindData> createWindData(List<Center> centers) {
+        List<WindData> list = new ArrayList<>(centers.size());
+        for (Center c : centers) {
+            list.add(new WindData(c));
+        }
+        return list;
+    }
+
+    private static void generateAirflow(long seed, List<Center> centers) {
+        Random random = new Random(seed);
+        double prevailingDirection = random.nextDouble() * (2.0 * Math.PI);
+        Gdx.app.debug(TAG, "generateAirflow: direction " + prevailingDirection);
+        for (Center center : centers) {
+            MapProperties properties = center.getMapProperties();
+            properties.setWindDirection(prevailingDirection);
+        }
     }
 
     private static void flattenOceans(List<Corner> corners) {
@@ -331,7 +364,7 @@ public class WorldGenerator {
     }
 
     private static Color getColorForMapProperties(Random colorRandom, MapProperties properties) {
-        if (DEBUG_HEIGHTMAP) {
+        if (Constants.DEBUG_HEIGHTMAP) {
             double elevation = properties.getElevation();
             return WorldColors.getHeightMapColor(colorRandom, elevation);
         } else {

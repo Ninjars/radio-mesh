@@ -75,4 +75,8 @@ public class MapPiece {
     public Color getColor() {
         return color;
     }
+
+    public double getWindDirection() {
+        return center.getMapProperties().getWindDirection();
+    }
 }
