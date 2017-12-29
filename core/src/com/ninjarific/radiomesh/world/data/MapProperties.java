@@ -3,6 +3,7 @@ package com.ninjarific.radiomesh.world.data;
 public class MapProperties {
 
     private Type type = Type.LAND;
+    private double elevation;
 
     public Type getType() {
         return type;
@@ -18,6 +19,14 @@ public class MapProperties {
 
     public boolean isOcean() {
         return type == Type.SHALLOWS || type == Type.BORDER_OCEAN;
+    }
+
+    public void setElevation(double elevation) {
+        this.elevation = elevation;
+    }
+
+    public double getElevation() {
+        return elevation;
     }
 
     public enum Type {

@@ -20,6 +20,7 @@ import org.kynosarges.tektosyne.geometry.VoronoiEdge;
 import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -27,6 +28,8 @@ public class WorldGenerator {
     private static final int WORLD_SIZE = 100;
     private static final int POINT_COUNT = 8000;
     private static final double LAKE_THRESHOLD = 0.3;
+    private static final double MOUNTAIN_SCALE_FACTOR = 1.1; // > 1 to increase the amount of maxed-out mountain tops
+    private static final boolean DEBUG_HEIGHTMAP = false;
 
     public static WorldModel generateWorld(NodeData nodeData, LoadingLogger logger) {
         logger.start();
@@ -135,11 +138,111 @@ public class WorldGenerator {
         markCornerOceanProperties(corners);
         logger.completedStage("ocean corners");
 
+        logger.beginningStage("corner elevations");
+        assignCornerElevations(corners);
+        logger.completedStage("corner elevations");
+
+        logger.beginningStage("redistribute elevations");
+        redistributeElevation(corners);
+        logger.completedStage("redistribute elevations");
+
+        logger.beginningStage("flatten oceans");
+        flattenOceans(corners);
+        logger.completedStage("flatten oceans");
+
+        logger.beginningStage("center elevations");
+        assignCenterElevations(centers);
+        logger.completedStage("center elevations");
+
         logger.beginningStage("create map pieces");
         List<MapPiece> map = createMapPieces(seed, centers);
         logger.completedStage("create map pieces");
         logger.end();
         return new WorldModel(map, bounds, centers, corners, edges);
+    }
+
+    private static void flattenOceans(List<Corner> corners) {
+        for (Corner corner : corners) {
+            MapProperties properties = corner.getMapProperties();
+            if (properties.isOcean() || properties.getType().equals(MapProperties.Type.COAST)) {
+                properties.setElevation(0);
+            }
+        }
+    }
+
+    /**
+     * Ocean has a height of 0, then the land climbs up from the boarders to be highest furthest from the coast
+     */
+    private static void assignCornerElevations(List<Corner> corners) {
+        List<Corner> queue = new ArrayList<>();
+        for (Corner corner : corners) {
+            MapProperties properties = corner.getMapProperties();
+            if (corner.isWorldBorder()) {
+                properties.setElevation(0.0);
+                queue.add(corner);
+            } else {
+                properties.setElevation(Double.MAX_VALUE);
+            }
+        }
+
+        int i  = 0;
+        while (i < queue.size()) {
+            Corner corner = queue.get(i);
+            double cornerElevation = corner.getMapProperties().getElevation();
+            boolean cornerIsLand = corner.getMapProperties().isLand();
+            for (Corner adjacent : corner.getAdjacent()) {
+                MapProperties adjacentProperties = adjacent.getMapProperties();
+                double newElevation = 0.01 + cornerElevation;
+                if (cornerIsLand && adjacentProperties.isLand()) {
+                    // lakes will be considered essentially flat, land will slope away from coasts
+                    newElevation += 1;
+                }
+                // check to see if we've got a new height for this corner, and if so add it to the queue
+                if (newElevation < adjacentProperties.getElevation()) {
+                    adjacentProperties.setElevation(newElevation);
+                    queue.add(adjacent);
+                }
+            }
+            i++;
+        }
+    }
+
+    private static void redistributeElevation(List<Corner> corners) {
+        List<Corner> sortedLandCorners = new ArrayList<>(corners.size());
+        for (Corner c : corners) {
+            if (c.getMapProperties().isLand() || c.getMapProperties().getType().equals(MapProperties.Type.LAKE)) {
+                sortedLandCorners.add(c);
+            }
+        }
+        Collections.sort(sortedLandCorners,
+                (a, b) -> Double.compare(a.getMapProperties().getElevation(), b.getMapProperties().getElevation()));
+
+        double fraction = 1 / (double)(sortedLandCorners.size() - 1);
+        double scaleFactorRoot = Math.sqrt(MOUNTAIN_SCALE_FACTOR);
+        for (int i = 0; i < sortedLandCorners.size(); i++) {
+            // Let y(x) be the total area that we want at elevation <= x.
+            // We want the higher elevations to occur less than lower
+            // ones, and set the area to be y(x) = 1 - (1-x)^2.
+            double y = i * fraction;
+            double x = scaleFactorRoot - Math.sqrt(MOUNTAIN_SCALE_FACTOR * (1-y));
+            if (x > 1.0) {
+                x = 1.0;
+            }
+            sortedLandCorners.get(i).getMapProperties().setElevation(x);
+        }
+    }
+
+    /**
+     * Centers have the elevations that's the average of their corners
+     */
+    private static void assignCenterElevations(List<Center> centers) {
+        for (Center center : centers) {
+            double sum = 0;
+            for (Corner corner : center.getCorners()) {
+                sum += corner.getMapProperties().getElevation();
+            }
+            center.getMapProperties().setElevation(sum / (double) center.getCorners().size());
+        }
     }
 
     private static boolean isInsideShape(int maxDimension, IslandShape shape, Coordinate coordinate) {
@@ -221,30 +324,33 @@ public class WorldGenerator {
         List<MapPiece> map = new ArrayList<>(centers.size());
         for (Center center : centers) {
             MapProperties properties = center.getMapProperties();
-            Color color;
-            switch (properties.getType()) {
-                case LAND:
-                    color = WorldColors.getLandColor(colorRandom);
-                    break;
-                case BORDER_OCEAN:
-                    color = WorldColors.getOceanColor(colorRandom);
-                    break;
-                case COAST:
-                    color = WorldColors.getCoastColor(colorRandom);
-                    break;
-                case SHALLOWS:
-                    color = WorldColors.getShallowsColor(colorRandom);
-                    break;
-                case LAKE:
-                    color = WorldColors.getLakeColor(colorRandom);
-                    break;
-                default:
-                    color = WorldColors.UNASSIGNED_COLOR;
-                    Gdx.app.debug("WoldGenerator", "unhandled map property " + properties.getType());
-            }
+            Color color = getColorForMapProperties(colorRandom, properties);
             map.add(new MapPiece(center, color));
         }
         return map;
+    }
+
+    private static Color getColorForMapProperties(Random colorRandom, MapProperties properties) {
+        if (DEBUG_HEIGHTMAP) {
+            double elevation = properties.getElevation();
+            return WorldColors.getHeightMapColor(colorRandom, elevation);
+        } else {
+            switch (properties.getType()) {
+                case LAND:
+                    return WorldColors.getLandColor(colorRandom, properties.getElevation());
+                case BORDER_OCEAN:
+                    return WorldColors.getOceanColor(colorRandom);
+                case COAST:
+                    return WorldColors.getCoastColor(colorRandom);
+                case SHALLOWS:
+                    return WorldColors.getShallowsColor(colorRandom);
+                case LAKE:
+                    return WorldColors.getLakeColor(colorRandom);
+                default:
+                    Gdx.app.debug("WoldGenerator", "unhandled map property " + properties.getType());
+                    return WorldColors.UNASSIGNED_COLOR;
+            }
+        }
     }
 
     private static VoronoiResults generateVoronoi(long seed, Bounds bounds) {
