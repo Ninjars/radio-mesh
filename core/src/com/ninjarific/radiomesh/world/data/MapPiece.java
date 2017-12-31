@@ -77,6 +77,6 @@ public class MapPiece {
     }
 
     public double getWindDirection() {
-        return center.getMapProperties().getWindDirection();
+        return center.getMapProperties().getMoisture();
     }
 }

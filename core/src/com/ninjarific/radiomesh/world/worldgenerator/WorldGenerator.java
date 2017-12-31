@@ -12,7 +12,6 @@ import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.Edge;
 import com.ninjarific.radiomesh.world.data.MapPiece;
 import com.ninjarific.radiomesh.world.data.MapProperties;
-import com.ninjarific.radiomesh.world.data.WeatherData;
 import com.ninjarific.radiomesh.world.logger.LoadingLogger;
 
 import org.kynosarges.tektosyne.geometry.PointD;
@@ -24,7 +23,6 @@ import org.kynosarges.tektosyne.geometry.VoronoiResults;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class WorldGenerator {
@@ -166,24 +164,8 @@ public class WorldGenerator {
         List<MapPiece> map = createMapPieces(seed, centers);
         logger.completedStage("create map pieces");
 
-        List<WeatherData> wind;
-        if (Constants.DEBUG_SHOW_WIND) {
-            logger.beginningStage("create wind data");
-            wind = createWindData(centers);
-            logger.completedStage("create wind data");
-        } else {
-            wind = Collections.emptyList();
-        }
         logger.end();
-        return new WorldModel(map, wind, bounds, centers, corners, edges);
-    }
-
-    private static List<WeatherData> createWindData(List<Center> centers) {
-        List<WeatherData> list = new ArrayList<>(centers.size());
-        for (Center c : centers) {
-            list.add(new WeatherData(c));
-        }
-        return list;
+        return new WorldModel(map, bounds, centers, corners, edges);
     }
 
     private static void calculateDownslopes(List<Corner> corners) {
@@ -204,7 +186,7 @@ public class WorldGenerator {
         Gdx.app.debug(TAG, "generateMoisture: wind direction " + prevailingWindDirection);
         for (Center center : centers) {
             MapProperties properties = center.getMapProperties();
-            properties.setWindDirection(prevailingWindDirection);
+            properties.setMoisture(random.nextDouble());
         }
     }
 
@@ -378,25 +360,33 @@ public class WorldGenerator {
     }
 
     private static Color getColorForMapProperties(Random colorRandom, MapProperties properties) {
-        if (Constants.DEBUG_HEIGHTMAP) {
-            double elevation = properties.getElevation();
-            return WorldColors.getHeightMapColor(colorRandom, elevation);
-        } else {
-            switch (properties.getType()) {
-                case LAND:
-                    return WorldColors.getLandColor(colorRandom, properties.getElevation());
-                case BORDER_OCEAN:
-                    return WorldColors.getOceanColor(colorRandom);
-                case COAST:
-                    return WorldColors.getCoastColor(colorRandom);
-                case SHALLOWS:
-                    return WorldColors.getShallowsColor(colorRandom);
-                case LAKE:
-                    return WorldColors.getLakeColor(colorRandom);
-                default:
-                    Gdx.app.debug("WoldGenerator", "unhandled map property " + properties.getType());
-                    return WorldColors.UNASSIGNED_COLOR;
-            }
+        switch (Constants.WORLD_RENDER_MODE) {
+            default:
+                Gdx.app.error(TAG, "unhandled render mode " + Constants.WORLD_RENDER_MODE);
+            case NORMAL:
+                switch (properties.getType()) {
+                    case LAND:
+                        return WorldColors.getLandColor(colorRandom, properties.getElevation());
+                    case BORDER_OCEAN:
+                        return WorldColors.getOceanColor(colorRandom);
+                    case COAST:
+                        return WorldColors.getCoastColor(colorRandom);
+                    case SHALLOWS:
+                        return WorldColors.getShallowsColor(colorRandom);
+                    case LAKE:
+                        return WorldColors.getLakeColor(colorRandom);
+                    default:
+                        Gdx.app.error(TAG, "unhandled map property " + properties.getType());
+                        return WorldColors.UNASSIGNED_COLOR;
+                }
+
+            case HEIGHT:
+                double elevation = properties.getElevation();
+                return WorldColors.getHeightMapColor(colorRandom, elevation);
+
+            case MOISTURE:
+                double moisture = properties.getMoisture();
+                return WorldColors.getGreyscale((float) moisture);
         }
     }
 

@@ -48,4 +48,8 @@ public class WorldColors {
     private static float getColorMult(Random random) {
         return 0.95f + 0.05f * random.nextFloat();
     }
+
+    public static Color getGreyscale(float val) {
+        return new Color(val, val, val, 1f);
+    }
 }

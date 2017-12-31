@@ -4,7 +4,7 @@ public class MapProperties {
 
     private Type type = Type.LAND;
     private double elevation;
-    private double windDirection;
+    private double moisture;
 
     public Type getType() {
         return type;
@@ -30,12 +30,12 @@ public class MapProperties {
         return elevation;
     }
 
-    public void setWindDirection(double windDirection) {
-        this.windDirection = windDirection;
+    public void setMoisture(double moisture) {
+        this.moisture = moisture;
     }
 
-    public double getWindDirection() {
-        return windDirection;
+    public double getMoisture() {
+        return moisture;
     }
 
     public enum Type {
