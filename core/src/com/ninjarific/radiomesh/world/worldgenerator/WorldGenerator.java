@@ -12,7 +12,7 @@ import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.Edge;
 import com.ninjarific.radiomesh.world.data.MapPiece;
 import com.ninjarific.radiomesh.world.data.MapProperties;
-import com.ninjarific.radiomesh.world.data.WindData;
+import com.ninjarific.radiomesh.world.data.WeatherData;
 import com.ninjarific.radiomesh.world.logger.LoadingLogger;
 
 import org.kynosarges.tektosyne.geometry.PointD;
@@ -24,6 +24,7 @@ import org.kynosarges.tektosyne.geometry.VoronoiResults;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class WorldGenerator {
@@ -156,15 +157,16 @@ public class WorldGenerator {
         assignCenterElevations(centers);
         logger.completedStage("center elevations");
 
-        logger.beginningStage("generate airflow");
-        generateAirflow(seed, centers);
-        logger.completedStage("generate airflow");
+        logger.beginningStage("generate weather");
+        calculateDownslopes(corners);
+        generateMoisture(seed, centers);
+        logger.completedStage("generate weather");
 
         logger.beginningStage("create map pieces");
         List<MapPiece> map = createMapPieces(seed, centers);
         logger.completedStage("create map pieces");
 
-        List<WindData> wind;
+        List<WeatherData> wind;
         if (Constants.DEBUG_SHOW_WIND) {
             logger.beginningStage("create wind data");
             wind = createWindData(centers);
@@ -176,21 +178,33 @@ public class WorldGenerator {
         return new WorldModel(map, wind, bounds, centers, corners, edges);
     }
 
-    private static List<WindData> createWindData(List<Center> centers) {
-        List<WindData> list = new ArrayList<>(centers.size());
+    private static List<WeatherData> createWindData(List<Center> centers) {
+        List<WeatherData> list = new ArrayList<>(centers.size());
         for (Center c : centers) {
-            list.add(new WindData(c));
+            list.add(new WeatherData(c));
         }
         return list;
     }
 
-    private static void generateAirflow(long seed, List<Center> centers) {
+    private static void calculateDownslopes(List<Corner> corners) {
+        for (Corner corner : corners) {
+            Corner downslope = corner;
+            for (Corner other : corner.getAdjacent()) {
+                if (other.getMapProperties().getElevation() < downslope.getMapProperties().getElevation()) {
+                    downslope = other;
+                }
+            }
+            corner.setDownslope(downslope);
+        }
+    }
+
+    private static void generateMoisture(long seed, List<Center> centers) {
         Random random = new Random(seed);
-        double prevailingDirection = random.nextDouble() * (2.0 * Math.PI);
-        Gdx.app.debug(TAG, "generateAirflow: direction " + prevailingDirection);
+        double prevailingWindDirection = random.nextDouble() * (2.0 * Math.PI);
+        Gdx.app.debug(TAG, "generateMoisture: wind direction " + prevailingWindDirection);
         for (Center center : centers) {
             MapProperties properties = center.getMapProperties();
-            properties.setWindDirection(prevailingDirection);
+            properties.setWindDirection(prevailingWindDirection);
         }
     }
 

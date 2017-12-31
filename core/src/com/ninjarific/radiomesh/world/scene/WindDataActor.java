@@ -7,15 +7,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.ninjarific.radiomesh.Constants;
-import com.ninjarific.radiomesh.world.data.WindData;
+import com.ninjarific.radiomesh.world.data.WeatherData;
 
 class WindDataActor extends Actor {
-    private final WindData data;
+    private final WeatherData data;
 
     private TextureRegion textureRegion;
 
-    public WindDataActor(WindData windData) {
-        this.data = windData;
+    public WindDataActor(WeatherData weatherData) {
+        this.data = weatherData;
         setTouchable(Touchable.disabled);
         setWidth(1);
         setHeight(0.1f);

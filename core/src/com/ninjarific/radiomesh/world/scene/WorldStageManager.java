@@ -15,10 +15,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gmail.blueboxware.libgdxplugin.annotations.GDXAssets;
 import com.ninjarific.radiomesh.coordinates.Bounds;
 import com.ninjarific.radiomesh.world.data.MapPiece;
-import com.ninjarific.radiomesh.world.data.WindData;
+import com.ninjarific.radiomesh.world.data.WeatherData;
 import com.ninjarific.radiomesh.world.interaction.IWorldEventHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class WorldStageManager {
@@ -91,15 +90,15 @@ public class WorldStageManager {
         uiStage.getViewport().update(width, height, true);
     }
 
-    public void setData(List<MapPiece> mapPieces, List<WindData> wind) {
+    public void setData(List<MapPiece> mapPieces, List<WeatherData> wind) {
         gameStage.clear();
         gameDebugStage.clear();
         for (MapPiece piece : mapPieces) {
             MapPieceActor actor = new MapPieceActor(piece, spriteBatch);
             gameStage.addActor(actor);
         }
-        for (WindData windData : wind) {
-            WindDataActor actor = new WindDataActor(windData);
+        for (WeatherData weatherData : wind) {
+            WindDataActor actor = new WindDataActor(weatherData);
             gameDebugStage.addActor(actor);
         }
     }

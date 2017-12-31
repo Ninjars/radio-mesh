@@ -1,9 +1,9 @@
 package com.ninjarific.radiomesh.world.data;
 
-public class WindData {
+public class WeatherData {
     private final Center center;
 
-    public WindData(Center center) {
+    public WeatherData(Center center) {
         this.center = center;
     }
 

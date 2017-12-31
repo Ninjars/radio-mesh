@@ -15,6 +15,7 @@ public class Corner {
 
     private MapProperties mapProperties;
     private boolean isWorldBorder;
+    private Corner downslope;
 
     public Corner(int index, Coordinate position) {
         this.index = index;
@@ -80,5 +81,13 @@ public class Corner {
 
     public MapProperties getMapProperties() {
         return mapProperties;
+    }
+
+    public void setDownslope(Corner downslope) {
+        this.downslope = downslope;
+    }
+
+    public Corner getDownslope() {
+        return downslope;
     }
 }
