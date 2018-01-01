@@ -5,6 +5,7 @@ public class MapProperties {
     private Type type = Type.LAND;
     private double elevation;
     private double moisture;
+    private int riverValue;
 
     public Type getType() {
         return type;
@@ -36,6 +37,22 @@ public class MapProperties {
 
     public double getMoisture() {
         return moisture;
+    }
+
+    public void incrementRiver() {
+        riverValue += 1;
+    }
+
+    public boolean isFreshWater() {
+        return type == Type.LAKE || riverValue > 0;
+    }
+
+    public int getRiverValue() {
+        return riverValue;
+    }
+
+    public boolean isSaltWater() {
+        return type == Type.SHALLOWS || type == Type.BORDER_OCEAN;
     }
 
     public enum Type {

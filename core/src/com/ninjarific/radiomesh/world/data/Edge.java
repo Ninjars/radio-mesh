@@ -9,6 +9,7 @@ public class Edge {
     public final Corner v0; // Voronoi edge
     public final Corner v1; // Voronoi edge
     private Coordinate midpoint; // Voronoi edge midpoint
+    private int riverValue;
 
     public Edge(int index, Center d0, Center d1, Corner v0, Corner v1) {
         this.index = index;
@@ -31,5 +32,13 @@ public class Edge {
             midpoint = Coordinate.midpoint(v0.position, v1.position);
         }
         return midpoint;
+    }
+
+    public int getRiverValue() {
+        return riverValue;
+    }
+
+    public void incrementRiverValue() {
+        riverValue += 1;
     }
 }

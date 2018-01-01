@@ -90,7 +90,7 @@ public class WorldGenerator {
         logger.completedStage("improve corners");
 
         logger.beginningStage("corner properties");
-        int maxDimension = (int) Math.ceil(Math.max(bounds.getWidth(), bounds.getHeight()));
+        final int maxDimension = (int) Math.ceil(Math.max(bounds.getWidth(), bounds.getHeight()));
         IslandShape shape = new PerlinIslandShape(seed, maxDimension);
         for (Corner corner : corners) {
             MapProperties properties = new MapProperties();
@@ -155,10 +155,12 @@ public class WorldGenerator {
         assignCenterElevations(centers);
         logger.completedStage("center elevations");
 
-        logger.beginningStage("generate weather");
+        logger.beginningStage("generate moisture");
         calculateDownslopes(corners);
-        generateMoisture(seed, centers);
-        logger.completedStage("generate weather");
+        generateRiver(WORLD_SIZE, seed, corners);
+        assignCornerMoisture(corners);
+        assignCenterMoisture(centers);
+        logger.completedStage("generate moisture");
 
         logger.beginningStage("create map pieces");
         List<MapPiece> map = createMapPieces(seed, centers);
@@ -166,6 +168,41 @@ public class WorldGenerator {
 
         logger.end();
         return new WorldModel(map, bounds, centers, corners, edges);
+    }
+
+    private static void generateRiver(int count, long seed, List<Corner> corners) {
+        Random random = new Random(seed);
+        for (int i = 0; i < count/2; i++) {
+            Corner corner = corners.get(random.nextInt(corners.size()));
+            MapProperties properties = corner.getMapProperties();
+            if (properties.getType() == MapProperties.Type.BORDER_OCEAN
+                    || properties.getElevation() < 0.3
+                    || properties.getElevation() > 0.9) {
+                continue;
+            }
+            while (corner.getMapProperties().getType() != MapProperties.Type.BORDER_OCEAN) {
+                if (corner == corner.getDownslope()) {
+                    break;
+                }
+                Edge edge = lookupEdgeFromCorner(corner, corner.getDownslope());
+                if (edge == null) {
+                    break;
+                }
+                edge.incrementRiverValue();
+                corner.getMapProperties().incrementRiver();
+                corner.getDownslope().getMapProperties().incrementRiver();
+                corner = corner.getDownslope();
+            }
+        }
+    }
+
+    private static Edge lookupEdgeFromCorner(Corner corner, Corner downslope) {
+        for (Edge edge : corner.getProtrudes()) {
+            if (edge.v0 == downslope || edge.v1 == downslope) {
+                return edge;
+            }
+        }
+        return null;
     }
 
     private static void calculateDownslopes(List<Corner> corners) {
@@ -180,13 +217,47 @@ public class WorldGenerator {
         }
     }
 
-    private static void generateMoisture(long seed, List<Center> centers) {
-        Random random = new Random(seed);
-        double prevailingWindDirection = random.nextDouble() * (2.0 * Math.PI);
-        Gdx.app.debug(TAG, "generateMoisture: wind direction " + prevailingWindDirection);
+    private static void assignCornerMoisture(List<Corner> corners) {
+        List<Corner> queue = new ArrayList<>(corners.size() / 2);
+        // fresh water propagation
+        for (Corner corner : corners) {
+            MapProperties properties = corner.getMapProperties();
+            if (properties.isFreshWater()) {
+                int riverValue = properties.getRiverValue();
+                properties.setMoisture(riverValue > 0 ? Math.min(3.0, (0.2 * riverValue)) : 1.0);
+                queue.add(corner);
+            } else {
+                properties.setMoisture(0);
+            }
+        }
+        for (int i = 0; i < queue.size(); i++) {
+            Corner corner = queue.get(i);
+            double moisture = corner.getMapProperties().getMoisture() * 0.9;
+            for (Corner adj : corner.getAdjacent()) {
+                if (moisture > adj.getMapProperties().getMoisture()) {
+                    adj.getMapProperties().setMoisture(moisture);
+                    queue.add(adj);
+                }
+            }
+        }
+        // salt water and cap values
+        for (Corner corner : corners) {
+            MapProperties mapProperties = corner.getMapProperties();
+            if (mapProperties.isSaltWater()) {
+                mapProperties.setMoisture(1);
+            } else if (mapProperties.getMoisture() > 1) {
+                mapProperties.setMoisture(1);
+            }
+        }
+    }
+
+    private static void assignCenterMoisture(List<Center> centers) {
         for (Center center : centers) {
-            MapProperties properties = center.getMapProperties();
-            properties.setMoisture(random.nextDouble());
+            double sum = 0;
+            for (Corner corner : center.getCorners()) {
+                sum += corner.getMapProperties().getMoisture();
+            }
+            center.getMapProperties().setMoisture(sum / (double) center.getCorners().size());
         }
     }
 

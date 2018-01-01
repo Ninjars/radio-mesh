@@ -16,6 +16,8 @@ public class Corner {
     private MapProperties mapProperties;
     private boolean isWorldBorder;
     private Corner downslope;
+    private Corner watershed;
+    private int watershedSize;
 
     public Corner(int index, Coordinate position) {
         this.index = index;
@@ -89,5 +91,21 @@ public class Corner {
 
     public Corner getDownslope() {
         return downslope;
+    }
+
+    public void setWatershed(Corner watershed) {
+        this.watershed = watershed;
+    }
+
+    public Corner getWatershed() {
+        return watershed;
+    }
+
+    public int getWatershedSize() {
+        return watershedSize;
+    }
+
+    public void setWatershedSize(int watershedSize) {
+        this.watershedSize = watershedSize;
     }
 }
