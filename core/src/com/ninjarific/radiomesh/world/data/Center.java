@@ -1,5 +1,7 @@
 package com.ninjarific.radiomesh.world.data;
 
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.ninjarific.radiomesh.coordinates.Coordinate;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ public class Center {
     private final List<Corner> corners = new ArrayList<>();
     private final Comparator<Corner> cornerComparator;
     private MapProperties mapProperties;
+    private Polygon polygon;
 
     public Center(int index, Coordinate position) {
         this.index = index;
@@ -74,11 +77,29 @@ public class Center {
         this.mapProperties = mapProperties;
     }
 
+    public Polygon getPolygon() {
+        if (polygon == null) {
+            List<Corner> corners = getCorners();
+            float[] vertices = new float[corners.size() * 2];
+            for (int i = 0; i < corners.size(); i++) {
+                vertices[i * 2] = (float) corners.get(i).position.x;
+                vertices[i * 2 + 1] = (float) corners.get(i).position.y;
+            }
+            polygon = new Polygon(vertices);
+        }
+        return polygon;
+    }
+
+    public Rectangle getBounds() {
+        Polygon polygon = getPolygon();
+        return polygon.getBoundingRectangle();
+    }
+
     private static class CornerComparator implements Comparator<Corner> {
 
         private final Coordinate center;
 
-        public CornerComparator(Coordinate center) {
+        CornerComparator(Coordinate center) {
 
             this.center = center;
         }

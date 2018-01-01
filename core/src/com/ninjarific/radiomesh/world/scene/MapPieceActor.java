@@ -11,11 +11,7 @@ import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.ShortArray;
-import com.ninjarific.radiomesh.Constants;
-import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.MapPiece;
-
-import java.util.List;
 
 // TODO: currently this is expecting a separate actor for each map piece.  This may be very inefficient to render, so consider alternative strategies
 // TODO: suggestion may be to have a single actor to handle all map pieces, so a single PolygonSpriteBatch is used in a single pass per frame
@@ -47,12 +43,7 @@ public class MapPieceActor extends Actor {
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
 
-        List<Corner> corners = data.getVertexes();
-        float[] vertices = new float[corners.size() * 2];
-        for (int i = 0; i < corners.size(); i++) {
-            vertices[i * 2] = (float) corners.get(i).position.x;
-            vertices[i * 2 + 1] = (float) corners.get(i).position.y;
-        }
+        float[] vertices = data.getPolygon().getVertices();
         ShortArray triangles = new EarClippingTriangulator().computeTriangles(vertices);
 
         PolygonRegion region = new PolygonRegion(new TextureRegion(texture), vertices, triangles.items);
