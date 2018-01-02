@@ -1,11 +1,14 @@
 package com.ninjarific.radiomesh.world.data;
 
+import com.ninjarific.radiomesh.world.worldgenerator.Biome;
+
 public class MapProperties {
 
     private Type type = Type.LAND;
     private double elevation;
     private double moisture;
     private int riverValue;
+    private Biome biome;
 
     public Type getType() {
         return type;
@@ -53,6 +56,14 @@ public class MapProperties {
 
     public boolean isSaltWater() {
         return type == Type.SHALLOWS || type == Type.BORDER_OCEAN;
+    }
+
+    public void setBiome(Biome biome) {
+        this.biome = biome;
+    }
+
+    public Biome getBiome() {
+        return biome;
     }
 
     public enum Type {

@@ -31,6 +31,7 @@ public class WorldGenerator {
     private static final int POINT_COUNT = 8000;
     private static final double LAKE_THRESHOLD = 0.3;
     private static final double MOUNTAIN_SCALE_FACTOR = 1.1; // > 1 to increase the amount of maxed-out mountain tops
+    public static final double MOISTURE_DROPOFF = 0.95; // factor applied to each step away from a freshwater source
 
     public static WorldModel generateWorld(NodeData nodeData, LoadingLogger logger) {
         logger.start();
@@ -163,11 +164,78 @@ public class WorldGenerator {
         logger.completedStage("generate moisture");
 
         logger.beginningStage("create map pieces");
+        assignBiomes(centers);
         List<MapPiece> map = createMapPieces(seed, centers);
         logger.completedStage("create map pieces");
 
         logger.end();
         return new WorldModel(map, bounds, centers, corners, edges);
+    }
+
+    private static void assignBiomes(List<Center> centers) {
+        for (Center c : centers) {
+            c.getMapProperties().setBiome(getBiome(c.getMapProperties()));
+        }
+    }
+
+    private static Biome getBiome(MapProperties mapProperties) {
+        double elevation = mapProperties.getElevation();
+        double moisture = mapProperties.getMoisture();
+        switch (mapProperties.getType()) {
+            case BORDER_OCEAN:
+                return Biome.OCEAN;
+            case SHALLOWS:
+                return Biome.SHALLOWS;
+            case COAST:
+                return Biome.COAST;
+            case LAKE:
+                if (elevation < 0.1) {
+                    return Biome.MARSH;
+                }
+                if (elevation > 0.8) {
+                    return Biome.ICE;
+                }
+                return Biome.LAKE;
+        }
+        if (elevation > 0.8) {
+            if (moisture > 0.5) {
+                return Biome.SNOW;
+            } else if (moisture > 0.33) {
+                return Biome.TUNDRA;
+            } else if (moisture > 0.16) {
+                return Biome.BARE;
+            } else {
+                return Biome.SCORCHED;
+            }
+        } else if (elevation > 0.6) {
+            if (moisture > 0.66) {
+                return Biome.TAIGA;
+            } else if (moisture > 0.33) {
+                return Biome.SHRUBLAND;
+            } else {
+                return Biome.TEMPERATE_DESERT;
+            }
+        } else if (elevation > 0.3) {
+            if (moisture > 0.83) {
+                return Biome.TEMPERATE_RAINFOREST;
+            } else if (moisture > 0.5) {
+                return Biome.TEMPERATE_FOREST;
+            } else if (moisture > 0.16) {
+                return Biome.GRASSLAND;
+            } else {
+                return Biome.TEMPERATE_DESERT;
+            }
+        } else {
+            if (moisture > 0.66) {
+                return Biome.TROPICAL_RAINFOREST;
+            } else if (moisture > 0.33) {
+                return Biome.TROPICAL_FOREST;
+            } else if (moisture > 0.16) {
+                return Biome.GRASSLAND;
+            } else {
+                return Biome.SUBTROPICAL_DESERT;
+            }
+        }
     }
 
     private static void generateRiver(int count, long seed, List<Corner> corners) {
@@ -232,7 +300,7 @@ public class WorldGenerator {
         }
         for (int i = 0; i < queue.size(); i++) {
             Corner corner = queue.get(i);
-            double moisture = corner.getMapProperties().getMoisture() * 0.9;
+            double moisture = corner.getMapProperties().getMoisture() * MOISTURE_DROPOFF;
             for (Corner adj : corner.getAdjacent()) {
                 if (moisture > adj.getMapProperties().getMoisture()) {
                     adj.getMapProperties().setMoisture(moisture);
@@ -435,21 +503,7 @@ public class WorldGenerator {
             default:
                 Gdx.app.error(TAG, "unhandled render mode " + Constants.WORLD_RENDER_MODE);
             case NORMAL:
-                switch (properties.getType()) {
-                    case LAND:
-                        return WorldColors.getLandColor(colorRandom, properties.getElevation());
-                    case BORDER_OCEAN:
-                        return WorldColors.getOceanColor(colorRandom);
-                    case COAST:
-                        return WorldColors.getCoastColor(colorRandom);
-                    case SHALLOWS:
-                        return WorldColors.getShallowsColor(colorRandom);
-                    case LAKE:
-                        return WorldColors.getLakeColor(colorRandom);
-                    default:
-                        Gdx.app.error(TAG, "unhandled map property " + properties.getType());
-                        return WorldColors.UNASSIGNED_COLOR;
-                }
+                return WorldColors.getBiomeColor(colorRandom, properties.getBiome());
 
             case HEIGHT:
                 double elevation = properties.getElevation();
