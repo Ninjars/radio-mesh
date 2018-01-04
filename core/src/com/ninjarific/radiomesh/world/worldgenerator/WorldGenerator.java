@@ -41,7 +41,7 @@ public class WorldGenerator {
         logger.start();
         final long seed = nodeData.getSeed();
         logger.beginningStage("voronoi graph");
-        VoronoiResults voronoiResults = generateVoronoi(seed, new Bounds(0, 0, WORLD_SIZE, WORLD_SIZE));
+        VoronoiResults voronoiResults = generateVoronoi(seed);
         logger.completedStage("voronoi graph");
 
         RectD clippingBoundRect = voronoiResults.clippingBounds;
@@ -67,10 +67,6 @@ public class WorldGenerator {
             double x = position.x + xOffset;
             double y = position.y + yOffset;
             Corner corner = new Corner(i, new Coordinate(x, y));
-            corner.setWorldBorder(x <= bounds.left
-                    || x >= bounds.right
-                    || y <= bounds.top
-                    || y >= bounds.bottom);
             corners.add(corner);
         }
         logger.completedStage("generate corners");
@@ -98,6 +94,7 @@ public class WorldGenerator {
         final int maxDimension = (int) Math.ceil(Math.max(bounds.getWidth(), bounds.getHeight()));
         IslandShape shape = new PerlinIslandShape(seed, maxDimension);
         for (Corner corner : corners) {
+            corner.setWorldBorder(corner.getTouches().size() <= 2);
             MapProperties properties = new MapProperties();
             if (corner.isWorldBorder()) {
                 properties.setType(MapProperties.Type.BORDER_OCEAN);
@@ -473,7 +470,7 @@ public class WorldGenerator {
         }
     }
 
-    private static VoronoiResults generateVoronoi(long seed, Bounds bounds) {
+    private static VoronoiResults generateVoronoi(long seed) {
         Random random = new Random(seed);
 
         PointD[] points = new PointD[POINT_COUNT];
@@ -481,13 +478,12 @@ public class WorldGenerator {
             PointD point = new PointD(random.nextDouble() * WORLD_SIZE, random.nextDouble() * WORLD_SIZE);
             points[i] = point;
         }
-        RectD clippingRect = new RectD(bounds.left, bounds.top, bounds.right, bounds.bottom);
-        VoronoiResults voronoiGraph = Voronoi.findAll(points, clippingRect);
-        voronoiGraph = performLloydRelaxation(voronoiGraph, voronoiGraph.clippingBounds);
-        return performLloydRelaxation(voronoiGraph, voronoiGraph.clippingBounds);
+        VoronoiResults voronoiGraph = Voronoi.findAll(points);
+        voronoiGraph = performLloydRelaxation(voronoiGraph);
+        return performLloydRelaxation(voronoiGraph);
     }
 
-    private static VoronoiResults performLloydRelaxation(VoronoiResults graph, RectD clippingRect) {
+    private static VoronoiResults performLloydRelaxation(VoronoiResults graph) {
         PointD[][] regions = graph.voronoiRegions();
         PointD[] approxCenters = new PointD[regions.length];
         for (int i = 0; i < regions.length; i++) {
@@ -501,7 +497,7 @@ public class WorldGenerator {
             y /= (float) region.length;
             approxCenters[i] = new PointD(x, y);
         }
-        return Voronoi.findAll(approxCenters, clippingRect);
+        return Voronoi.findAll(approxCenters);
     }
 
     private static void improveCorners(List<Corner> corners) {
