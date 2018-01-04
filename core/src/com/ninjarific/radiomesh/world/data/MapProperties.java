@@ -1,6 +1,6 @@
 package com.ninjarific.radiomesh.world.data;
 
-import com.ninjarific.radiomesh.world.worldgenerator.Biome;
+import com.ninjarific.radiomesh.world.worldgenerator.biomes.Biome;
 
 public class MapProperties {
 

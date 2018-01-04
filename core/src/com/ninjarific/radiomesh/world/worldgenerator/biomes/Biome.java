@@ -1,4 +1,4 @@
-package com.ninjarific.radiomesh.world.worldgenerator;
+package com.ninjarific.radiomesh.world.worldgenerator.biomes;
 
 public enum Biome {
     OCEAN,

@@ -1,7 +1,7 @@
 package com.ninjarific.radiomesh.world;
 
 import com.badlogic.gdx.graphics.Color;
-import com.ninjarific.radiomesh.world.worldgenerator.Biome;
+import com.ninjarific.radiomesh.world.worldgenerator.biomes.Biome;
 
 import java.util.Random;
 
