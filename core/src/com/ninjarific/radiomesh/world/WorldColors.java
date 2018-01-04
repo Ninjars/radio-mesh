@@ -15,20 +15,20 @@ public class WorldColors {
     private static final Color SNOW = new Color(0.973f, 0.973f, 0.973f, 1f);
     private static final Color TUNDRA = new Color(0.867f, 0.867f, 0.733f, 1f);
 
-    private static final Color BARE = new Color(0.733f, 0.733f, 0.733f, 1f);
-    private static final Color SCORCHED = new Color(0.6f, 0.6f, 0.6f, 1f);
+    private static final Color BARE = new Color(176/255f, 176/255f, 176/255f, 1f);
+    private static final Color SCORCHED = new Color(145/255f, 145/255f, 145/255f, 1f);
 
-    private static final Color TAIGA = new Color(0.8f, 0.831f, 0.733f, 1f);
-    private static final Color SHRUBLAND = new Color(0.769f, 0.8f, 0.733f, 1f);
-    private static final Color TEMPERATE_DESERT = new Color(0.894f, 0.91f, 0.782f, 1f);
+    private static final Color TAIGA = new Color(191/255f, 219/255f, 196/255f, 1f);
+    private static final Color SHRUBLAND = new Color(174/255f, 191/255f, 168/255f, 1f);
+    private static final Color TEMPERATE_DESERT = new Color(208/255f, 222/255f, 138/255f, 1f);
 
-    private static final Color TEMPERATE_RAINFOREST = new Color(0.643f, 0.769f, 0.659f, 1f);
-    private static final Color TEMPERATE_FOREST = new Color(0.706f, 0.788f, 0.663f, 1f);
-    private static final Color GRASSLAND = new Color(0.769f, 0.831f, 0.667f, 1f);
+    private static final Color TEMPERATE_RAINFOREST = new Color(131/255f, 209/255f, 123/255f, 1f);
+    private static final Color TEMPERATE_FOREST = new Color(97/255f, 209/255f, 77/255f, 1f);
+    private static final Color GRASSLAND = new Color(120/255f, 222/255f, 111/255f, 1f);
 
-    private static final Color TROPICAL_RAINFOREST = new Color(0.612f, 0.733f, 0.663f, 1f);
-    private static final Color TROPICAL_FOREST = new Color(0.663f, 0.8f, 0.643f, 1f);
-    private static final Color SUBTROPICAL_DESERT = new Color(0.914f, 0.867f, 0.78f, 1f);
+    private static final Color TROPICAL_RAINFOREST = new Color(78/255f, 179/255f, 64/255f, 1f);
+    private static final Color TROPICAL_FOREST = new Color(74/255f, 168/255f, 30/255f, 1f);
+    private static final Color SUBTROPICAL_DESERT = new Color(227/255f, 217/255f, 84/255f, 1f);
 
     private static final Color UNASSIGNED_COLOR = Color.PURPLE;
 
