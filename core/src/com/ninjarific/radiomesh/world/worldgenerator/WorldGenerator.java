@@ -28,6 +28,7 @@ public class WorldGenerator {
     private static final String TAG = WorldGenerator.class.getSimpleName();
     private static final int WORLD_SIZE = 100;
     private static final int POINT_COUNT = 8000;
+    private static final int MAX_RIVERS_PER_THOUSAND_POINTS = 10;
     private static final double LAKE_THRESHOLD = 0.3;
     private static final double MOUNTAIN_SCALE_FACTOR = 1.1; // > 1 to increase the amount of maxed-out mountain tops
     private static final double MOISTURE_DROPOFF = 0.95; // factor applied to each step away from a freshwater source
@@ -154,7 +155,7 @@ public class WorldGenerator {
 
         logger.beginningStage("generate moisture");
         calculateDownslopes(corners);
-        generateRiver(WORLD_SIZE, seed, corners);
+        generateRiver(seed, corners);
         assignCornerMoisture(corners);
         assignCenterMoisture(centers);
         logger.completedStage("generate moisture");
@@ -187,16 +188,20 @@ public class WorldGenerator {
         }
     }
 
-    private static void generateRiver(int count, long seed, List<Corner> corners) {
+    private static void generateRiver(long seed, List<Corner> corners) {
         Random random = new Random(seed);
-        for (int i = 0; i < count/2; i++) {
-            Corner corner = corners.get(random.nextInt(corners.size()));
+        int riverCount = random.nextInt(MAX_RIVERS_PER_THOUSAND_POINTS * POINT_COUNT/1000);
+        List<Corner> validRiverStarts = new ArrayList<>(corners.size() / 2);
+        for (Corner corner : corners) {
             MapProperties properties = corner.getMapProperties();
-            if (properties.getType() == MapProperties.Type.BORDER_OCEAN
-                    || properties.getElevation() < 0.3
-                    || properties.getElevation() > 0.9) {
-                continue;
+            if (properties.getType() != MapProperties.Type.BORDER_OCEAN
+                    && properties.getElevation() > 0.3
+                    && properties.getElevation() < 0.9) {
+                validRiverStarts.add(corner);
             }
+        }
+        for (int i = 0; i < riverCount; i++) {
+            Corner corner = validRiverStarts.get(random.nextInt(validRiverStarts.size()));
             while (corner.getMapProperties().getType() != MapProperties.Type.BORDER_OCEAN) {
                 if (corner == corner.getDownslope()) {
                     break;
