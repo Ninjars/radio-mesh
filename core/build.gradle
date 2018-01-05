@@ -1,4 +1,5 @@
 apply plugin: "java"
+apply plugin: 'kotlin'
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -9,4 +10,27 @@ dependencies {
     implementation 'com.annimon:stream:1.1.9'
     implementation 'com.gmail.blueboxware:libgdxpluginannotations:1.13'
     implementation 'org.kynosarges:tektosyne:6.0.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+}
+buildscript {
+    ext.kotlin_version = '1.2.10'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+repositories {
+    mavenCentral()
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
