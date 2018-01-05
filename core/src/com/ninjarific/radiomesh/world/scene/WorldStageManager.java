@@ -14,10 +14,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gmail.blueboxware.libgdxplugin.annotations.GDXAssets;
 import com.ninjarific.radiomesh.coordinates.Bounds;
-import com.ninjarific.radiomesh.world.data.MapPiece;
 import com.ninjarific.radiomesh.world.interaction.IWorldEventHandler;
-
-import java.util.List;
+import com.ninjarific.radiomesh.world.worldgenerator.MapData;
 
 public class WorldStageManager {
     private final IWorldEventHandler eventHandler;
@@ -89,12 +87,11 @@ public class WorldStageManager {
         uiStage.getViewport().update(width, height, true);
     }
 
-    public void setData(List<MapPiece> mapPieces) {
+    public void setData(MapData mapData) {
         gameStage.clear();
         gameDebugStage.clear();
-        for (MapPiece piece : mapPieces) {
-            MapPieceActor actor = new MapPieceActor(piece, spriteBatch);
-            gameStage.addActor(actor);
-        }
+        gameStage.addActor(new MapActor(spriteBatch, mapData.getSeed(),
+                mapData.getBounds(), mapData.getCenters(), mapData.getEdges()));
+
     }
 }

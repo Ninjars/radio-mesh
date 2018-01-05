@@ -1,16 +1,11 @@
 package com.ninjarific.radiomesh.world.worldgenerator;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.ninjarific.radiomesh.Constants;
 import com.ninjarific.radiomesh.coordinates.Bounds;
 import com.ninjarific.radiomesh.coordinates.Coordinate;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
-import com.ninjarific.radiomesh.world.WorldColors;
 import com.ninjarific.radiomesh.world.data.Center;
 import com.ninjarific.radiomesh.world.data.Corner;
 import com.ninjarific.radiomesh.world.data.Edge;
-import com.ninjarific.radiomesh.world.data.MapPiece;
 import com.ninjarific.radiomesh.world.data.MapProperties;
 import com.ninjarific.radiomesh.world.logger.LoadingLogger;
 import com.ninjarific.radiomesh.world.worldgenerator.biomes.AridBiomeMapper;
@@ -37,7 +32,7 @@ public class WorldGenerator {
     private static final double MOUNTAIN_SCALE_FACTOR = 1.1; // > 1 to increase the amount of maxed-out mountain tops
     private static final double MOISTURE_DROPOFF = 0.95; // factor applied to each step away from a freshwater source
 
-    public static WorldModel generateWorld(NodeData nodeData, LoadingLogger logger) {
+    public static MapData generateWorld(NodeData nodeData, LoadingLogger logger) {
         logger.start();
         final long seed = nodeData.getSeed();
         logger.beginningStage("voronoi graph");
@@ -164,13 +159,12 @@ public class WorldGenerator {
         assignCenterMoisture(centers);
         logger.completedStage("generate moisture");
 
-        logger.beginningStage("create map pieces");
+        logger.beginningStage("assign biomes");
         assignBiomes(seed, centers);
-        List<MapPiece> map = createMapPieces(seed, centers);
-        logger.completedStage("create map pieces");
+        logger.completedStage("assign biomes");
 
         logger.end();
-        return new WorldModel(map, bounds, centers, corners, edges);
+        return new MapData(seed, centers, corners, edges, bounds);//new WorldModel(map, bounds, centers, corners, edges);
     }
 
     private static void assignBiomes(long seed, List<Center> centers) {
@@ -439,34 +433,6 @@ public class WorldGenerator {
             } else if (lands != numberOfCenters) {
                 properties.setType(MapProperties.Type.LAKE);
             }
-        }
-    }
-
-    private static List<MapPiece> createMapPieces(long colorSeed, List<Center> centers) {
-        Random colorRandom = new Random(colorSeed);
-        List<MapPiece> map = new ArrayList<>(centers.size());
-        for (Center center : centers) {
-            MapProperties properties = center.getMapProperties();
-            Color color = getColorForMapProperties(colorRandom, properties);
-            map.add(new MapPiece(center, color));
-        }
-        return map;
-    }
-
-    private static Color getColorForMapProperties(Random colorRandom, MapProperties properties) {
-        switch (Constants.WORLD_RENDER_MODE) {
-            default:
-                Gdx.app.error(TAG, "unhandled render mode " + Constants.WORLD_RENDER_MODE);
-            case NORMAL:
-                return WorldColors.getBiomeColor(colorRandom, properties.getBiome());
-
-            case HEIGHT:
-                double elevation = properties.getElevation();
-                return WorldColors.getHeightMapColor(colorRandom, elevation);
-
-            case MOISTURE:
-                double moisture = properties.getMoisture();
-                return WorldColors.getGreyscale((float) moisture);
         }
     }
 

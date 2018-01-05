@@ -10,8 +10,8 @@ import com.ninjarific.radiomesh.scan.ScanScreen;
 import com.ninjarific.radiomesh.scan.radialgraph.NodeData;
 import com.ninjarific.radiomesh.world.WorldScreen;
 import com.ninjarific.radiomesh.world.logger.LoadingLogger;
+import com.ninjarific.radiomesh.world.worldgenerator.MapData;
 import com.ninjarific.radiomesh.world.worldgenerator.WorldGenerator;
-import com.ninjarific.radiomesh.world.worldgenerator.WorldModel;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class RadioMeshGame extends Game implements InputProcessor {
         Gdx.input.setCatchBackKey(false);
     }
 
-    private void showWorldScreen(WorldModel model) {
+    private void showWorldScreen(MapData model) {
         scanScreen.removeFromInput(inputMultiplexer);
 
         worldScreen.setModel(model);
@@ -88,7 +88,8 @@ public class RadioMeshGame extends Game implements InputProcessor {
 
     public void onNodeSelected(NodeData data) {
         LoadingLogger loadingLogger = new LoadingLogger(s -> Gdx.app.debug("WorldGenerator", s));
-        showWorldScreen(WorldGenerator.generateWorld(data, loadingLogger));
+        MapData mapData = WorldGenerator.generateWorld(data, loadingLogger);
+        showWorldScreen(mapData);
     }
 
     @Override

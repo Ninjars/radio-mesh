@@ -5,7 +5,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.ninjarific.radiomesh.RadioMeshGame;
-import com.ninjarific.radiomesh.world.worldgenerator.WorldModel;
+import com.ninjarific.radiomesh.world.worldgenerator.MapData;
 import com.ninjarific.radiomesh.world.interaction.IWorldEventHandler;
 import com.ninjarific.radiomesh.world.interaction.WorldEventHandler;
 import com.ninjarific.radiomesh.world.scene.WorldStageManager;
@@ -16,7 +16,7 @@ public class WorldScreen implements Screen {
     private final RadioMeshGame game;
     private final IWorldEventHandler stageEventHandler;
     private final WorldStageManager stageManager;
-    private WorldModel model;
+    private MapData model;
 
     public WorldScreen(RadioMeshGame game) {
         this.game = game;
@@ -69,8 +69,8 @@ public class WorldScreen implements Screen {
         stageManager.dispose();
     }
 
-    public void setModel(WorldModel model) {
+    public void setModel(MapData model) {
         this.model = model;
-        stageManager.setData(model.getMap());
+        stageManager.setData(model);
     }
 }
