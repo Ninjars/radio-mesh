@@ -30,6 +30,9 @@ public class WorldColors {
     private static final Color TROPICAL_FOREST = new Color(74/255f, 168/255f, 30/255f, 1f);
     private static final Color SUBTROPICAL_DESERT = new Color(227/255f, 217/255f, 84/255f, 1f);
 
+    private static final Color RIVER = new Color(46/255f, 186/255f,  232/255f, 1f);
+    private static final Color EDGE = new Color(89/255f, 89/255f, 89/255f, 0.5f);
+
     private static final Color UNASSIGNED_COLOR = Color.PURPLE;
 
     private static final float MARSH = 0.5f;
@@ -102,5 +105,9 @@ public class WorldColors {
             default:
                 return WorldColors.UNASSIGNED_COLOR;
         }
+    }
+
+    public static Color getEdgeColor(int riverValue) {
+        return riverValue == 0 ? EDGE : RIVER;
     }
 }
