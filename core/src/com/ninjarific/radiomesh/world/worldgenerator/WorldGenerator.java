@@ -16,7 +16,6 @@ import com.ninjarific.radiomesh.world.worldgenerator.biomes.TundralBiomeMapper;
 import org.kynosarges.tektosyne.geometry.PointD;
 import org.kynosarges.tektosyne.geometry.RectD;
 import org.kynosarges.tektosyne.geometry.Voronoi;
-import org.kynosarges.tektosyne.geometry.VoronoiEdge;
 import org.kynosarges.tektosyne.geometry.VoronoiResults;
 
 import java.util.ArrayList;
@@ -41,49 +40,24 @@ public class WorldGenerator {
         logger.completedStage("voronoi graph");
 
         RectD clippingBoundRect = voronoiResults.clippingBounds;
-        double xOffset = -clippingBoundRect.min.x;
-        double yOffset = -clippingBoundRect.min.y;
         Bounds bounds = new Bounds(0, 0, clippingBoundRect.width(), clippingBoundRect.height());
 
         logger.beginningStage("generate centers");
         PointD[] centerPoints = voronoiResults.generatorSites;
-        List<Center> centers = new ArrayList<>(centerPoints.length);
-        for (int i = 0; i < centerPoints.length; i++) {
-            PointD position = centerPoints[i];
-            Center center = new Center(i, new Coordinate(position.x + xOffset, position.y + yOffset));
-            centers.add(center);
-        }
+        List<Center> centers = WorldGeneratorUtils.createCenters(centerPoints, clippingBoundRect);
         logger.completedStage("generate centers");
 
         logger.beginningStage("generate corners");
         PointD[] cornerPoints = voronoiResults.voronoiVertices;
-        List<Corner> corners = new ArrayList<>(centerPoints.length);
-        for (int i = 0; i < cornerPoints.length; i++) {
-            PointD position = cornerPoints[i];
-            double x = position.x + xOffset;
-            double y = position.y + yOffset;
-            Corner corner = new Corner(i, new Coordinate(x, y));
-            corners.add(corner);
-        }
+        List<Corner> corners = WorldGeneratorUtils.createCorners(cornerPoints, clippingBoundRect);
         logger.completedStage("generate corners");
 
-        List<Edge> edges = new ArrayList<>();
-
-        logger.startLoop("generate regions");
-        for (int i = 0; i < voronoiResults.voronoiEdges.length; i++) {
-            logger.startLoopIteration("generate regions");
-            VoronoiEdge resultEdge = voronoiResults.voronoiEdges[i];
-            Center centerA = centers.get(resultEdge.site1);
-            Center centerB = centers.get(resultEdge.site2);
-            Corner cornerA = corners.get(resultEdge.vertex1);
-            Corner cornerB = corners.get(resultEdge.vertex2);
-            edges.add(makeEdge(edges.size(), cornerA, cornerB, centerA, centerB));
-            logger.endLoopIteration("generate regions");
-        }
-        logger.endLoop("generate regions");
+        logger.beginningStage("generate edges");
+        List<Edge> edges = WorldGeneratorUtils.createEdges(voronoiResults.voronoiEdges, centers, corners);
+        logger.completedStage("generate edges");
 
         logger.beginningStage("improve corners");
-        improveCorners(corners);
+        WorldGeneratorUtils.improveCorners(corners);
         logger.completedStage("improve corners");
 
         logger.beginningStage("corner properties");
@@ -165,7 +139,7 @@ public class WorldGenerator {
         logger.completedStage("assign biomes");
 
         logger.end();
-        return new MapData(seed, centers, corners, edges, bounds);//new WorldModel(map, bounds, centers, corners, edges);
+        return new MapData(seed, centers, corners, edges, bounds);
     }
 
     private static void assignBiomes(long seed, List<Center> centers) {
@@ -469,47 +443,5 @@ public class WorldGenerator {
             approxCenters[i] = new PointD(x, y);
         }
         return Voronoi.findAll(approxCenters);
-    }
-
-    private static void improveCorners(List<Corner> corners) {
-        for (Corner corner : corners) {
-            if (corner.isWorldBorder()) {
-                continue;
-            }
-            double x = 0, y = 0;
-            for (Center center : corner.getTouches()) {
-                x += center.position.x;
-                y += center.position.y;
-            }
-            x /= corner.getTouches().size();
-            y /= corner.getTouches().size();
-            corner.setPosition(new Coordinate(x, y));
-        }
-    }
-
-    private static Edge makeEdge(int index, Corner cornerA, Corner cornerB, Center a, Center b) {
-        Edge edge = new Edge(index, a, b, cornerA, cornerB);
-
-        // connect centers and corners
-        edge.v0.addEdge(edge);
-        edge.v1.addEdge(edge);
-
-        // connect centers
-        if (edge.d0 != null && edge.d1 != null) {
-            edge.d0.addNeighbour(edge.d1);
-            edge.d1.addNeighbour(edge.d0);
-        }
-
-        // connect corners
-        edge.v0.addAdjacent(edge.v1);
-        edge.v1.addAdjacent(edge.v0);
-
-        // corners reference centers
-        edge.v0.addCenter(edge.d0);
-        edge.v0.addCenter(edge.d1);
-        edge.v1.addCenter(edge.d0);
-        edge.v1.addCenter(edge.d1);
-
-        return edge;
     }
 }
